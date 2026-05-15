@@ -3,466 +3,481 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NestKart — Pakistan's #1 3D Luxury Store</title>
+<title>NestKart — Pakistan's #1 Luxury Store</title>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
   import { getFirestore, collection, addDoc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
   const cfg={apiKey:"AIzaSyAst9vKwKzN28DfKukaBFNvjDY66BJADn8",authDomain:"nestkart-2a2c2.firebaseapp.com",projectId:"nestkart-2a2c2",storageBucket:"nestkart-2a2c2.firebasestorage.app",messagingSenderId:"987346746569",appId:"1:987346746569:web:a08d29dfea81177253d118"};
-  const app=initializeApp(cfg);const db=getFirestore(app);const auth=getAuth(app);const provider=new GoogleAuthProvider();
+  const app=initializeApp(cfg);const db=getFirestore(app);
   window.db=db;window.fsCol=collection;window.fsDocs=getDocs;window.fsAdd=addDoc;window.fsSnap=onSnapshot;
-  window.gAuth=auth;window.gProvider=provider;
-  window.gSignIn=()=>signInWithPopup(auth,provider);
-  window.gSignOut=()=>signOut(auth);
-  window.gAuthChange=(cb)=>onAuthStateChanged(auth,cb);
   window.dispatchEvent(new Event('fbReady'));
 </script>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@400;500;600;700;800&family=Bebas+Neue&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{
-  --bg:#03071e;--bg2:#050d2a;--bg3:#071035;
-  --card:#0a1540;--card2:#0e1d52;
-  --purple:#7c3aed;--purple2:#9333ea;--purple3:#a855f7;
-  --emerald:#059669;--emerald2:#10b981;--emerald3:#34d399;
-  --gold:#f59e0b;--gold2:#fbbf24;--gold3:#fcd34d;
-  --pink:#ec4899;--cyan:#06b6d4;
-  --white:#f8fafc;--muted:#94a3b8;--dim:#475569;
-  --border:rgba(124,58,237,0.2);--border2:rgba(124,58,237,0.4);
-  --glow-p:rgba(124,58,237,0.5);--glow-e:rgba(16,185,129,0.4);
+  --bg:#0a0015;--bg2:#0d001a;--bg3:#110020;
+  --card:#16002a;--card2:#1a003200;
+  --purple:#8b5cf6;--purple2:#7c3aed;--purple3:#a78bfa;
+  --pink:#f472b6;--pink2:#ec4899;
+  --emerald:#10b981;--emerald2:#34d399;
+  --gold:#fbbf24;--gold2:#fcd34d;
+  --cyan:#22d3ee;--orange:#fb923c;
+  --white:#faf5ff;--muted:#c4b5fd;--dim:#7c6a9a;
+  --border:rgba(139,92,246,0.15);--border2:rgba(139,92,246,0.35);
+  --glow:rgba(139,92,246,0.4);
 }
 html{scroll-behavior:smooth;}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);overflow-x:hidden;cursor:none;}
-input,select,textarea,button{font-family:'DM Sans',sans-serif;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--white);overflow-x:hidden;cursor:none;}
+input,select,textarea,button{font-family:'Nunito',sans-serif;}
 
-/* CUSTOM CURSOR */
-.cursor{position:fixed;width:12px;height:12px;background:var(--purple3);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:transform .1s,width .2s,height .2s;mix-blend-mode:difference;}
-.cursor-trail{position:fixed;width:32px;height:32px;border:1px solid rgba(168,85,247,0.5);border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);transition:all .15s ease;}
-body:hover .cursor{opacity:1;}
+/* CURSOR */
+.cursor{position:fixed;width:14px;height:14px;background:var(--pink);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:width .2s,height .2s;mix-blend-mode:screen;}
+.cursor-ring{position:fixed;width:36px;height:36px;border:2px solid rgba(244,114,182,0.5);border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);transition:all .12s ease;}
 
-/* PARTICLES */
-#canvas3d{position:fixed;inset:0;z-index:0;pointer-events:none;}
+/* ANIMATED BACKGROUND */
+#bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.bg-orbs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);animation:orbFloat 12s ease-in-out infinite;}
+.orb1{width:500px;height:500px;background:radial-gradient(circle,rgba(139,92,246,0.25),transparent);top:-100px;left:-100px;animation-delay:0s;}
+.orb2{width:400px;height:400px;background:radial-gradient(circle,rgba(244,114,182,0.2),transparent);top:30%;right:-80px;animation-delay:-4s;}
+.orb3{width:350px;height:350px;background:radial-gradient(circle,rgba(34,211,238,0.15),transparent);bottom:10%;left:20%;animation-delay:-8s;}
+.orb4{width:300px;height:300px;background:radial-gradient(circle,rgba(251,191,36,0.12),transparent);bottom:-50px;right:20%;animation-delay:-6s;}
+@keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(30px,-40px) scale(1.05);}66%{transform:translate(-20px,20px) scale(0.95);}}
 
 /* SCROLLBAR */
-::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar{width:4px;}
 ::-webkit-scrollbar-track{background:var(--bg);}
-::-webkit-scrollbar-thumb{background:var(--purple);border-radius:2px;}
+::-webkit-scrollbar-thumb{background:linear-gradient(var(--purple),var(--pink));border-radius:2px;}
 
 .page{display:none!important;}.page.active{display:block!important;}
 
-/* ═══ ANNOUNCEMENT ═══ */
-.ann{background:linear-gradient(90deg,var(--purple),var(--pink),var(--emerald2),var(--purple));background-size:300% 100%;animation:annMove 4s linear infinite;padding:9px;text-align:center;font-size:11px;letter-spacing:2px;color:#fff;font-weight:600;text-transform:uppercase;position:relative;z-index:200;}
-@keyframes annMove{0%{background-position:0%}100%{background-position:100%}}
+/* ANNOUNCEMENT */
+.ann{background:linear-gradient(90deg,#7c3aed,#ec4899,#8b5cf6,#f472b6,#7c3aed);background-size:400% 100%;animation:annScroll 6s linear infinite;padding:10px;text-align:center;font-size:11px;letter-spacing:2px;color:#fff;font-weight:800;text-transform:uppercase;position:relative;z-index:200;}
+@keyframes annScroll{0%{background-position:0%}100%{background-position:100%}}
+.ann-txt{display:inline-flex;align-items:center;gap:16px;}
 
-/* ═══ NAV ═══ */
-.nav{position:sticky;top:0;z-index:600;background:rgba(3,7,30,0.92);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
-.nav-in{max-width:1440px;margin:0 auto;display:flex;align-items:center;padding:13px 28px;gap:20px;}
-.logo{cursor:pointer;flex-shrink:0;}
-.logo-text{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:var(--white);letter-spacing:3px;}
-.logo-text span{background:linear-gradient(135deg,var(--purple3),var(--emerald3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.logo-sub{font-size:8px;letter-spacing:5px;color:var(--dim);text-transform:uppercase;margin-top:1px;}
-.srch{flex:1;max-width:500px;position:relative;}
-.srch input{width:100%;padding:11px 50px 11px 20px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--white);outline:none;transition:all .3s;}
-.srch input:focus{border-color:var(--purple3);background:rgba(124,58,237,0.08);box-shadow:0 0 0 3px rgba(124,58,237,0.12);}
+/* NAV */
+.nav{position:sticky;top:0;z-index:600;background:rgba(10,0,21,0.95);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
+.nav-in{max-width:1440px;margin:0 auto;display:flex;align-items:center;padding:14px 24px;gap:16px;}
+.logo{cursor:pointer;flex-shrink:0;display:flex;align-items:center;gap:10px;}
+.logo-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--purple),var(--pink));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 4px 16px rgba(139,92,246,0.4);}
+.logo-text-wrap .logo-text{font-family:'Poppins',sans-serif;font-size:22px;font-weight:800;color:var(--white);letter-spacing:-0.5px;line-height:1;}
+.logo-text-wrap .logo-text span{color:var(--pink);}
+.logo-text-wrap .logo-sub{font-size:9px;letter-spacing:3px;color:var(--dim);text-transform:uppercase;}
+.srch{flex:1;max-width:460px;position:relative;}
+.srch input{width:100%;padding:11px 48px 11px 18px;background:rgba(139,92,246,0.08);border:1px solid var(--border2);border-radius:50px;font-size:13px;color:var(--white);outline:none;transition:all .3s;}
+.srch input:focus{border-color:var(--purple3);box-shadow:0 0 0 3px rgba(139,92,246,0.15);}
 .srch input::placeholder{color:var(--dim);}
-.srch-btn{position:absolute;right:0;top:0;height:100%;padding:0 16px;background:linear-gradient(135deg,var(--purple),var(--purple2));border:none;border-radius:0 8px 8px 0;cursor:pointer;color:#fff;font-size:16px;transition:opacity .2s;}
-.srch-btn:hover{opacity:.85;}
-.nav-right{display:flex;align-items:center;gap:10px;margin-left:auto;}
-
-/* Google btn */
-.g-btn{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:var(--muted);transition:all .25s;white-space:nowrap;}
-.g-btn:hover{background:rgba(255,255,255,0.1);border-color:var(--purple3);color:#fff;}
-.gsvg{width:16px;height:16px;flex-shrink:0;}
-.u-btn{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.06);border:1px solid var(--border2);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;color:var(--muted);font-weight:600;transition:all .2s;}
-.u-btn:hover{border-color:var(--purple3);color:#fff;}
-.u-btn img{width:24px;height:24px;border-radius:50%;border:1px solid var(--purple3);}
-.wb{position:relative;background:rgba(255,255,255,0.04);border:1px solid var(--border);padding:8px 13px;border-radius:8px;cursor:pointer;color:var(--muted);font-size:17px;transition:all .2s;}
-.wb:hover{border-color:var(--pink);color:var(--pink);}
-.wbdg{position:absolute;top:-6px;right:-6px;background:var(--pink);color:#fff;border-radius:50%;width:16px;height:16px;font-size:9px;font-weight:800;display:none;align-items:center;justify-content:center;}
-.wbdg.show{display:flex;}
-.cbtn{display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--purple),var(--purple2));color:#fff;padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-weight:700;transition:all .25s;position:relative;overflow:hidden;}
-.cbtn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--purple2),var(--pink));opacity:0;transition:opacity .25s;}
-.cbtn:hover::before{opacity:1;}
-.cbtn:hover{transform:translateY(-1px);box-shadow:0 6px 20px var(--glow-p);}
-.cbtn span,.cbtn .cc{position:relative;z-index:1;}
-.cc{background:rgba(0,0,0,0.3);color:var(--gold2);border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;}
+.srch-btn{position:absolute;right:4px;top:50%;transform:translateY(-50%);background:linear-gradient(135deg,var(--purple),var(--pink));border:none;width:34px;height:34px;border-radius:50%;cursor:pointer;color:#fff;font-size:15px;display:flex;align-items:center;justify-content:center;}
+.nav-right{display:flex;align-items:center;gap:8px;margin-left:auto;}
+.nav-icon-btn{position:relative;background:rgba(139,92,246,0.1);border:1px solid var(--border);width:40px;height:40px;border-radius:12px;cursor:pointer;color:var(--muted);font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .25s;}
+.nav-icon-btn:hover{background:rgba(139,92,246,0.2);border-color:var(--purple3);color:var(--white);}
+.badge-dot{position:absolute;top:-4px;right:-4px;background:var(--pink);color:#fff;border-radius:50%;width:17px;height:17px;font-size:9px;font-weight:900;display:none;align-items:center;justify-content:center;border:2px solid var(--bg);}
+.badge-dot.show{display:flex;}
+.cart-btn{display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;padding:10px 20px;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:800;transition:all .25s;position:relative;white-space:nowrap;}
+.cart-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(139,92,246,0.5);}
+.cart-btn .cc{background:rgba(0,0,0,0.25);border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;}
 
 /* CATEGORY NAV */
-.catnav{background:rgba(3,7,30,0.95);border-bottom:1px solid var(--border);position:sticky;top:57px;z-index:500;}
-.catnav-in{max-width:1440px;margin:0 auto;padding:0 28px;display:flex;gap:0;overflow-x:auto;}
+.catnav{background:rgba(10,0,21,0.98);border-bottom:1px solid var(--border);position:sticky;top:65px;z-index:500;}
+.catnav-in{max-width:1440px;margin:0 auto;padding:0 24px;display:flex;gap:0;overflow-x:auto;}
 .catnav-in::-webkit-scrollbar{display:none;}
-.cpill{background:none;border:none;padding:13px 20px;font-size:12px;letter-spacing:.5px;font-weight:500;color:var(--dim);cursor:pointer;transition:all .2s;border-bottom:2px solid transparent;white-space:nowrap;position:relative;}
-.cpill:hover,.cpill.on{color:var(--purple3);border-bottom-color:var(--purple3);}
-.cpill.on::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:6px;height:6px;background:var(--purple3);border-radius:50%;margin-bottom:-3px;}
+.cpill{background:none;border:none;padding:12px 18px;font-size:12px;letter-spacing:.5px;font-weight:700;color:var(--dim);cursor:pointer;transition:all .2s;border-bottom:2px solid transparent;white-space:nowrap;}
+.cpill:hover,.cpill.on{color:var(--pink);border-bottom-color:var(--pink);}
 
-/* ═══ FLASH SALE ═══ */
-.flash{background:linear-gradient(135deg,rgba(124,58,237,0.3),rgba(5,150,105,0.2));border-bottom:1px solid var(--border);padding:11px 28px;display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;}
-.flash-lbl{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--gold2);}
-.ftimer{display:flex;gap:8px;align-items:center;}
-.fblock{background:rgba(255,255,255,0.07);border:1px solid var(--border2);padding:7px 13px;text-align:center;border-radius:6px;min-width:54px;backdrop-filter:blur(8px);}
-.fnum{font-family:'Bebas Neue',sans-serif;font-size:24px;display:block;color:#fff;line-height:1;}
+/* FLASH SALE */
+.flash{background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(244,114,182,0.15));border-bottom:1px solid rgba(244,114,182,0.2);padding:12px 24px;display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;}
+.flash-lbl{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;background:linear-gradient(135deg,var(--gold),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.ftimer{display:flex;gap:6px;align-items:center;}
+.fblock{background:rgba(255,255,255,0.07);border:1px solid rgba(244,114,182,0.3);padding:6px 12px;text-align:center;border-radius:10px;min-width:52px;}
+.fnum{font-family:'Bebas Neue',sans-serif;font-size:26px;display:block;color:#fff;line-height:1;}
 .flab{font-size:8px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;}
-.fsep{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--purple3);}
+.fsep{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--pink);animation:blink 1s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
 
-/* ═══ SALES STATS BAR (5h) ═══ */
-.stats-bar{background:linear-gradient(135deg,rgba(5,150,105,0.15),rgba(124,58,237,0.1));border-bottom:1px solid var(--border);padding:0 28px;}
-.stats-in{max-width:1440px;margin:0 auto;display:flex;align-items:stretch;overflow-x:auto;gap:0;}
+/* STATS BAR */
+.stats-bar{background:rgba(13,0,26,0.9);border-bottom:1px solid var(--border);padding:0 24px;}
+.stats-in{max-width:1440px;margin:0 auto;display:flex;overflow-x:auto;}
 .stats-in::-webkit-scrollbar{display:none;}
-.stat-item{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 28px;border-right:1px solid var(--border);white-space:nowrap;min-width:140px;transition:background .2s;}
-.stat-item:hover{background:rgba(124,58,237,0.08);}
+.stat-item{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 24px;border-right:1px solid var(--border);white-space:nowrap;min-width:130px;}
 .stat-item:last-child{border-right:none;}
-.stat-val{font-family:'Bebas Neue',sans-serif;font-size:26px;line-height:1;background:linear-gradient(135deg,var(--emerald3),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.stat-lbl{font-size:9px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase;margin-top:2px;}
-.stat-trend{font-size:10px;color:var(--emerald3);font-weight:600;margin-top:1px;}
+.stat-val{font-family:'Bebas Neue',sans-serif;font-size:24px;background:linear-gradient(135deg,var(--emerald2),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
+.stat-lbl{font-size:9px;letter-spacing:1px;color:var(--dim);text-transform:uppercase;margin-top:1px;}
+.stat-trend{font-size:9px;color:var(--emerald2);font-weight:700;margin-top:1px;}
 
-/* ═══ HERO ═══ */
-.hero{min-height:92vh;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;}
-.hero-mesh{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(124,58,237,0.18) 0%,transparent 70%),radial-gradient(ellipse 40% 40% at 80% 70%,rgba(5,150,105,0.12) 0%,transparent 60%);}
-.hero-lines{position:absolute;inset:0;overflow:hidden;}
-.hline{position:absolute;height:1px;background:linear-gradient(90deg,transparent,rgba(124,58,237,0.4),transparent);width:100%;animation:hlineMove 6s ease-in-out infinite;}
-.hline:nth-child(1){top:20%;animation-delay:0s;}
-.hline:nth-child(2){top:50%;animation-delay:2s;}
-.hline:nth-child(3){top:80%;animation-delay:4s;}
-@keyframes hlineMove{0%,100%{opacity:0;transform:scaleX(0)}50%{opacity:1;transform:scaleX(1)}}
-.vline{position:absolute;width:1px;background:linear-gradient(180deg,transparent,rgba(5,150,105,0.3),transparent);height:100%;animation:vlineMove 8s ease-in-out infinite;}
-.vline:nth-child(4){left:20%;animation-delay:1s;}
-.vline:nth-child(5){left:50%;animation-delay:3s;}
-.vline:nth-child(6){left:80%;animation-delay:5s;}
-@keyframes vlineMove{0%,100%{opacity:0;transform:scaleY(0)}50%{opacity:1;transform:scaleY(1)}}
-.hero-content{position:relative;z-index:2;text-align:center;padding:40px 20px;max-width:960px;}
-.hero-pill{display:inline-flex;align-items:center;gap:8px;background:rgba(124,58,237,0.12);border:1px solid rgba(124,58,237,0.3);padding:7px 22px;border-radius:30px;font-size:11px;letter-spacing:2px;color:var(--purple3);text-transform:uppercase;margin-bottom:28px;}
-.hpulse{width:6px;height:6px;background:var(--emerald2);border-radius:50%;animation:pulse 2s infinite;}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.8)}}
-.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(40px,7vw,88px);font-weight:700;color:#fff;line-height:1.03;margin-bottom:16px;letter-spacing:-2px;}
-.hero h1 em{font-style:normal;background:linear-gradient(135deg,var(--purple3),var(--emerald3),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.hero-sub{font-size:16px;color:var(--muted);margin-bottom:44px;line-height:1.7;font-weight:300;letter-spacing:.5px;}
-.hero-metrics{display:flex;justify-content:center;gap:0;margin-bottom:48px;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:rgba(255,255,255,0.02);max-width:640px;margin-left:auto;margin-right:auto;backdrop-filter:blur(12px);}
-.hmet{flex:1;padding:20px 14px;text-align:center;border-right:1px solid var(--border);min-width:110px;}
-.hmet:last-child{border-right:none;}
-.hmet-n{font-family:'Bebas Neue',sans-serif;font-size:30px;color:#fff;line-height:1;}
-.hmet-l{font-size:9px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-top:3px;}
-.hcta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
-.btn-hero{background:linear-gradient(135deg,var(--purple),var(--purple2));color:#fff;padding:16px 44px;border:none;border-radius:8px;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;text-transform:uppercase;transition:all .3s;position:relative;overflow:hidden;}
-.btn-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--purple2),var(--pink));opacity:0;transition:opacity .3s;}
-.btn-hero:hover::after{opacity:1;}
-.btn-hero:hover{transform:translateY(-3px);box-shadow:0 12px 40px var(--glow-p);}
-.btn-hero span{position:relative;z-index:1;}
-.btn-hero2{background:transparent;color:var(--emerald3);padding:16px 44px;border:1px solid rgba(52,211,153,0.4);border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;text-transform:uppercase;letter-spacing:1px;transition:all .3s;}
-.btn-hero2:hover{background:rgba(52,211,153,0.08);border-color:var(--emerald3);box-shadow:0 6px 24px var(--glow-e);}
+/* HERO */
+.hero{min-height:88vh;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:40px 20px;}
+.hero-content{position:relative;z-index:2;text-align:center;max-width:860px;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(244,114,182,0.12);border:1px solid rgba(244,114,182,0.3);padding:7px 20px;border-radius:50px;font-size:11px;letter-spacing:1.5px;color:var(--pink);text-transform:uppercase;font-weight:800;margin-bottom:24px;animation:badgePulse 3s ease-in-out infinite;}
+@keyframes badgePulse{0%,100%{box-shadow:0 0 0 0 rgba(244,114,182,0.2)}50%{box-shadow:0 0 0 8px rgba(244,114,182,0)}}
+.live-dot{width:7px;height:7px;background:var(--emerald2);border-radius:50%;animation:livePulse 1.5s infinite;}
+@keyframes livePulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.6);opacity:.5}}
+.hero h1{font-family:'Poppins',sans-serif;font-size:clamp(36px,6vw,78px);font-weight:800;color:#fff;line-height:1.1;margin-bottom:16px;letter-spacing:-2px;}
+.hero h1 .grad{background:linear-gradient(135deg,var(--purple3),var(--pink),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{font-size:15px;color:var(--muted);margin-bottom:36px;line-height:1.7;font-weight:500;}
+.hero-stats{display:flex;justify-content:center;gap:0;margin-bottom:40px;border:1px solid var(--border2);border-radius:20px;overflow:hidden;background:rgba(139,92,246,0.06);max-width:580px;margin-left:auto;margin-right:auto;backdrop-filter:blur(16px);}
+.hstat{flex:1;padding:18px 12px;text-align:center;border-right:1px solid var(--border);}
+.hstat:last-child{border-right:none;}
+.hstat-n{font-family:'Bebas Neue',sans-serif;font-size:28px;color:#fff;line-height:1;}
+.hstat-l{font-size:9px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-top:2px;}
+.hcta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.btn-main{background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;padding:15px 40px;border:none;border-radius:50px;font-size:14px;font-weight:800;letter-spacing:.5px;cursor:pointer;transition:all .3s;box-shadow:0 6px 24px rgba(139,92,246,0.4);}
+.btn-main:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(139,92,246,0.6);}
+.btn-sec{background:transparent;color:var(--emerald2);padding:15px 40px;border:2px solid rgba(52,211,153,0.4);border-radius:50px;font-size:14px;font-weight:800;cursor:pointer;transition:all .3s;letter-spacing:.5px;}
+.btn-sec:hover{background:rgba(52,211,153,0.1);border-color:var(--emerald2);}
 
-/* ═══ TRUST ═══ */
-.trust{background:rgba(10,21,64,0.8);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:18px 28px;display:flex;justify-content:center;gap:36px;flex-wrap:wrap;backdrop-filter:blur(12px);}
-.tch{display:flex;align-items:center;gap:12px;}
-.tch-ic{width:38px;height:38px;background:linear-gradient(135deg,rgba(124,58,237,0.3),rgba(5,150,105,0.2));border:1px solid var(--border2);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;}
-.tch-txt strong{display:block;font-size:12px;font-weight:600;color:var(--white);}
+/* TRUST */
+.trust{background:rgba(16,0,32,0.9);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;justify-content:center;gap:24px;flex-wrap:wrap;backdrop-filter:blur(12px);}
+.tch{display:flex;align-items:center;gap:10px;}
+.tch-ic{width:36px;height:36px;background:linear-gradient(135deg,rgba(139,92,246,0.3),rgba(244,114,182,0.2));border:1px solid var(--border2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.tch-txt strong{display:block;font-size:12px;font-weight:700;color:var(--white);}
 .tch-txt span{font-size:10px;color:var(--dim);}
 
-/* ═══ LIVE TICKER ═══ */
-.ticker{background:rgba(5,150,105,0.08);border-bottom:1px solid rgba(52,211,153,0.1);padding:10px 0;overflow:hidden;position:relative;}
+/* TICKER */
+.ticker{background:rgba(16,185,129,0.06);border-bottom:1px solid rgba(52,211,153,0.1);padding:10px 0;overflow:hidden;position:relative;}
 .ticker::before,.ticker::after{content:'';position:absolute;top:0;bottom:0;width:80px;z-index:2;}
 .ticker::before{left:0;background:linear-gradient(90deg,var(--bg),transparent);}
 .ticker::after{right:0;background:linear-gradient(-90deg,var(--bg),transparent);}
-.ticker-in{display:flex;gap:60px;animation:ticker 28s linear infinite;white-space:nowrap;}
+.ticker-in{display:flex;gap:60px;animation:ticker 30s linear infinite;white-space:nowrap;}
 @keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 .tki{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);}
-.tdk{width:5px;height:5px;background:var(--emerald2);border-radius:50%;animation:pulse 1.5s infinite;}
-.tkn{color:var(--emerald3);font-weight:600;}
+.tdk{width:5px;height:5px;background:var(--emerald2);border-radius:50%;animation:livePulse 1.5s infinite;}
+.tkn{color:var(--emerald2);font-weight:700;}
 
-/* ═══ SECTIONS ═══ */
-.section{max-width:1440px;margin:0 auto;padding:70px 28px;}
-.sec-head{text-align:center;margin-bottom:52px;}
-.sec-eye{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--purple3);font-weight:600;margin-bottom:10px;}
-.sec-t{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,4vw,46px);font-weight:700;color:var(--white);margin-bottom:10px;letter-spacing:-1px;}
-.sec-t em{font-style:normal;background:linear-gradient(135deg,var(--purple3),var(--emerald3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.sec-line{width:48px;height:2px;background:linear-gradient(90deg,var(--purple),var(--emerald2));border-radius:1px;margin:14px auto;}
-.sec-sub{font-size:14px;color:var(--muted);font-family:'Cormorant Garamond',serif;font-style:italic;font-size:16px;}
+/* SECTION */
+.section{max-width:1440px;margin:0 auto;padding:60px 24px;}
+.sec-head{text-align:center;margin-bottom:44px;}
+.sec-eye{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--pink);font-weight:800;margin-bottom:8px;}
+.sec-t{font-family:'Poppins',sans-serif;font-size:clamp(24px,3.5vw,40px);font-weight:800;color:var(--white);margin-bottom:8px;letter-spacing:-1px;}
+.sec-t em{font-style:normal;background:linear-gradient(135deg,var(--purple3),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.sec-line{width:44px;height:3px;background:linear-gradient(90deg,var(--purple),var(--pink));border-radius:2px;margin:12px auto;}
 
-/* ═══ CATEGORY CARDS ═══ */
-.catgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:14px;}
-.ccard{background:rgba(10,21,64,0.8);border:1px solid var(--border);border-radius:14px;padding:26px 14px;text-align:center;cursor:pointer;transition:all .35s;position:relative;overflow:hidden;backdrop-filter:blur(8px);}
-.ccard::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(124,58,237,0.0),rgba(52,211,153,0.0));transition:all .35s;}
-.ccard:hover::before{background:linear-gradient(135deg,rgba(124,58,237,0.12),rgba(52,211,153,0.08));}
-.ccard:hover{border-color:var(--purple3);transform:translateY(-8px) scale(1.02);box-shadow:0 20px 50px rgba(124,58,237,0.25);}
-.ccard-em{font-size:38px;margin-bottom:10px;display:block;transition:transform .35s;}
-.ccard:hover .ccard-em{transform:scale(1.2) rotate(-5deg);}
-.ccard-n{font-size:11px;letter-spacing:1px;text-transform:uppercase;font-weight:600;color:var(--muted);}
-.ccard-c{font-size:10px;color:var(--dim);margin-top:3px;}
+/* CATEGORY CARDS */
+.catgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;}
+.ccard{background:rgba(22,0,42,0.9);border:1px solid var(--border);border-radius:18px;padding:24px 12px;text-align:center;cursor:pointer;transition:all .35s;position:relative;overflow:hidden;}
+.ccard::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(139,92,246,0),rgba(244,114,182,0));transition:all .35s;}
+.ccard:hover::after{background:linear-gradient(135deg,rgba(139,92,246,0.15),rgba(244,114,182,0.1));}
+.ccard:hover{border-color:var(--pink);transform:translateY(-8px);box-shadow:0 16px 40px rgba(244,114,182,0.2);}
+.ccard-em{font-size:36px;margin-bottom:8px;display:block;transition:transform .3s;}
+.ccard:hover .ccard-em{transform:scale(1.2) rotate(-8deg);}
+.ccard-n{font-size:11px;letter-spacing:.5px;text-transform:uppercase;font-weight:800;color:var(--muted);}
+.ccard-c{font-size:10px;color:var(--dim);margin-top:2px;}
 
-/* ═══ 3D PRODUCT CARDS ═══ */
-.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:20px;}
-.pcard{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;transition:all .4s cubic-bezier(.23,1,.32,1);position:relative;transform-style:preserve-3d;}
-.pcard:hover{border-color:var(--purple3);box-shadow:0 28px 70px rgba(124,58,237,0.3),0 0 0 1px rgba(124,58,237,0.25),inset 0 1px 0 rgba(255,255,255,0.05);}
-.pcard-shine{position:absolute;inset:0;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.04) 50%,transparent 60%);transition:all .5s;opacity:0;z-index:2;pointer-events:none;}
-.pcard:hover .pcard-shine{opacity:1;transform:translateX(60px);}
-.pribb{position:absolute;top:14px;left:-2px;color:#fff;padding:5px 14px 5px 10px;font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;clip-path:polygon(0 0,100% 0,93% 50%,100% 100%,0 100%);z-index:3;}
-.pribb.hb{background:linear-gradient(135deg,#ef4444,#f97316);}
-.pribb.nb{background:linear-gradient(135deg,var(--purple),var(--purple2));}
-.pribb.pb{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;}
-.pribb.eb{background:linear-gradient(135deg,var(--emerald),var(--emerald2));}
-.pimg-wrap{position:relative;height:260px;overflow:hidden;}
+/* PRODUCT CARDS */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;}
+.pcard{background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;cursor:pointer;transition:all .4s cubic-bezier(.23,1,.32,1);position:relative;transform-style:preserve-3d;}
+.pcard:hover{border-color:var(--pink);box-shadow:0 24px 60px rgba(139,92,246,0.3),0 0 0 1px rgba(244,114,182,0.2);}
+
+/* DISCOUNT STICKER */
+.disc-sticker{position:absolute;top:12px;left:12px;z-index:10;animation:stickerWiggle 3s ease-in-out infinite;}
+@keyframes stickerWiggle{0%,100%{transform:rotate(-5deg) scale(1)}25%{transform:rotate(-8deg) scale(1.05)}75%{transform:rotate(-2deg) scale(0.98)}}
+.disc-sticker-inner{background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:20px;width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(239,68,68,0.5);border:2px solid rgba(255,255,255,0.3);}
+.disc-sticker-inner span{font-size:9px;display:block;line-height:1;text-align:center;font-family:'Nunito',sans-serif;font-weight:900;}
+
+.badge-ribb{position:absolute;top:14px;right:-2px;color:#fff;padding:5px 14px 5px 10px;font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;clip-path:polygon(0 0,100% 0,93% 50%,100% 100%,0 100%);z-index:3;}
+.badge-ribb.new-b{background:linear-gradient(135deg,var(--purple),var(--purple2));}
+.badge-ribb.hot-b{background:linear-gradient(135deg,#ef4444,#f97316);}
+.badge-ribb.prem-b{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;}
+.badge-ribb.best-b{background:linear-gradient(135deg,var(--emerald),var(--emerald2));}
+
+.pimg-wrap{position:relative;height:250px;overflow:hidden;}
 .pimg-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease;}
 .pcard:hover .pimg-wrap img{transform:scale(1.08);}
-.peph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:90px;background:linear-gradient(135deg,var(--bg3),var(--card2));}
-.pwish{position:absolute;top:12px;right:12px;background:rgba(3,7,30,0.85);border:1px solid rgba(255,255,255,0.1);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .25s;z-index:3;backdrop-filter:blur(8px);}
-.pwish:hover,.pwish.on{background:rgba(236,72,153,0.2);border-color:var(--pink);color:var(--pink);transform:scale(1.15);}
-.pvw{position:absolute;bottom:10px;left:10px;background:rgba(3,7,30,0.75);backdrop-filter:blur(10px);color:#fff;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:600;display:flex;align-items:center;gap:5px;border:1px solid rgba(52,211,153,0.2);}
-.vd{width:5px;height:5px;background:var(--emerald2);border-radius:50%;animation:pulse 1.5s infinite;}
-/* 5h sold badge */
-.psold{position:absolute;bottom:10px;right:10px;background:linear-gradient(135deg,rgba(245,158,11,0.85),rgba(251,191,36,0.85));backdrop-filter:blur(8px);color:#000;padding:4px 10px;border-radius:20px;font-size:9px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;border:1px solid rgba(245,158,11,0.5);}
-.qadd{position:absolute;bottom:-52px;left:0;right:0;background:linear-gradient(135deg,var(--purple),var(--purple2));color:#fff;border:none;padding:15px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:bottom .3s cubic-bezier(.23,1,.32,1),background .2s;z-index:3;}
+.peph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:80px;background:linear-gradient(135deg,rgba(22,0,42,1),rgba(26,0,50,1));}
+.pwish{position:absolute;top:12px;right:12px;background:rgba(10,0,21,0.85);border:1px solid rgba(255,255,255,0.1);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .25s;z-index:4;backdrop-filter:blur(8px);}
+.pwish:hover,.pwish.on{background:rgba(236,72,153,0.25);border-color:var(--pink);color:var(--pink);}
+
+/* VIEWERS BADGE */
+.pviewers{position:absolute;bottom:10px;left:10px;background:rgba(10,0,21,0.8);backdrop-filter:blur(10px);color:#fff;padding:5px 10px;border-radius:20px;font-size:10px;font-weight:700;display:flex;align-items:center;gap:5px;border:1px solid rgba(52,211,153,0.3);z-index:3;}
+.vd{width:5px;height:5px;background:var(--emerald2);border-radius:50%;animation:livePulse 1.5s infinite;}
+.psold-badge{position:absolute;bottom:10px;right:10px;background:linear-gradient(135deg,rgba(251,191,36,0.9),rgba(252,211,77,0.9));color:#000;padding:4px 9px;border-radius:20px;font-size:9px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;z-index:3;}
+
+.qadd{position:absolute;bottom:-52px;left:0;right:0;background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;border:none;padding:14px;font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:bottom .3s cubic-bezier(.23,1,.32,1);z-index:3;}
 .pcard:hover .qadd{bottom:0;}
-.qadd:hover{background:linear-gradient(135deg,var(--purple2),var(--pink));}
-.pbody{padding:18px 18px 20px;}
-.pcat{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);font-weight:600;margin-bottom:5px;}
-.pname{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--white);line-height:1.3;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.pstars{color:var(--gold2);font-size:12px;margin-bottom:2px;}
-.prevs{font-size:9px;color:var(--dim);letter-spacing:.5px;margin-bottom:10px;}
-.pprices{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+
+.pbody{padding:16px 16px 18px;}
+.pcat{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:4px;}
+.pname{font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;color:var(--white);line-height:1.3;margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.pstars{color:var(--gold);font-size:12px;margin-bottom:2px;}
+.prevs{font-size:9px;color:var(--dim);letter-spacing:.5px;margin-bottom:9px;}
+.pprices{display:flex;align-items:center;gap:7px;margin-bottom:8px;flex-wrap:wrap;}
 .pp{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--white);}
 .pold{font-size:12px;color:var(--dim);text-decoration:line-through;}
-.poff{font-size:10px;color:#fff;background:linear-gradient(135deg,#ef4444,#f97316);padding:2px 7px;border-radius:4px;font-weight:700;}
-.psizes2{display:flex;gap:4px;flex-wrap:wrap;}
-.sz2{font-size:9px;border:1px solid rgba(124,58,237,0.3);color:var(--dim);padding:2px 7px;border-radius:4px;}
+.poff{font-size:10px;color:#fff;background:linear-gradient(135deg,#ef4444,#f97316);padding:2px 7px;border-radius:4px;font-weight:800;}
 .pstock{display:flex;align-items:center;gap:6px;margin-top:8px;}
-.sbar{flex:1;height:3px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;}
-.sbarin{height:100%;background:linear-gradient(90deg,var(--purple),var(--emerald2));border-radius:2px;}
+.sbar{flex:1;height:3px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden;}
+.sbarin{height:100%;border-radius:2px;}
+.sbarin.low{background:linear-gradient(90deg,#ef4444,#f97316);}
+.sbarin.ok{background:linear-gradient(90deg,var(--purple),var(--pink));}
 .stxt{font-size:9px;color:var(--dim);white-space:nowrap;}
 
-/* ═══ FEATURES ═══ */
-.featgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px;}
-.fcrd{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:28px 24px;transition:all .3s;}
-.fcrd:hover{border-color:rgba(52,211,153,0.4);transform:translateY(-6px);box-shadow:0 16px 48px rgba(5,150,105,0.15);}
-.fcic{width:54px;height:54px;background:linear-gradient(135deg,rgba(124,58,237,0.25),rgba(5,150,105,0.15));border:1px solid var(--border2);border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px;}
-.fct{font-size:14px;font-weight:700;color:var(--white);margin-bottom:7px;}
+/* URGENCY STUFF */
+.urgency-row{display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap;}
+.urg-badge{font-size:9px;font-weight:800;padding:3px 8px;border-radius:5px;letter-spacing:.5px;text-transform:uppercase;animation:urgPulse 2s ease-in-out infinite;}
+.urg-fire{background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid rgba(239,68,68,0.3);}
+.urg-clock{background:rgba(251,191,36,0.12);color:var(--gold2);border:1px solid rgba(251,191,36,0.25);}
+@keyframes urgPulse{0%,100%{opacity:1}50%{opacity:.7}}
+
+/* FEATURES */
+.featgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;}
+.fcrd{background:rgba(22,0,42,0.8);border:1px solid var(--border);border-radius:18px;padding:26px 22px;transition:all .3s;}
+.fcrd:hover{border-color:rgba(244,114,182,0.4);transform:translateY(-6px);box-shadow:0 16px 40px rgba(244,114,182,0.12);}
+.fcic{width:52px;height:52px;background:linear-gradient(135deg,rgba(139,92,246,0.3),rgba(244,114,182,0.2));border:1px solid var(--border2);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px;}
+.fct{font-size:14px;font-weight:800;color:var(--white);margin-bottom:6px;}
 .fct2{font-size:12px;color:var(--muted);line-height:1.7;}
 
-/* ═══ PROOF ═══ */
+/* REVIEWS */
 .prow2{display:flex;gap:14px;overflow-x:auto;padding-bottom:8px;}
-.prow2::-webkit-scrollbar{height:2px;}
+.prow2::-webkit-scrollbar{height:3px;}
 .prow2::-webkit-scrollbar-thumb{background:var(--purple);}
-.prcrd{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;min-width:230px;flex-shrink:0;transition:all .2s;}
-.prcrd:hover{border-color:var(--purple3);box-shadow:0 8px 24px rgba(124,58,237,0.15);}
+.prcrd{background:rgba(22,0,42,0.9);border:1px solid var(--border);border-radius:16px;padding:18px;min-width:240px;flex-shrink:0;transition:all .2s;}
+.prcrd:hover{border-color:var(--pink);box-shadow:0 8px 24px rgba(244,114,182,0.15);}
 .prhdr{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-.prav{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--emerald2));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;}
-.prn{font-weight:600;font-size:13px;color:var(--white);}
+.prav{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px;}
+.prn{font-weight:700;font-size:13px;color:var(--white);}
 .prc{font-size:10px;color:var(--dim);}
-.prst{color:var(--gold2);font-size:12px;margin-bottom:5px;}
+.prst{color:var(--gold);font-size:13px;margin-bottom:5px;}
 .prtxt{font-size:12px;color:var(--muted);line-height:1.6;font-style:italic;}
 .prti{font-size:9px;color:var(--dim);margin-top:6px;}
+.pr-verified{font-size:9px;color:var(--emerald2);font-weight:700;margin-top:4px;}
 
-/* ═══ LOYALTY ═══ */
-.loybar{background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(251,191,36,0.08));border-top:1px solid rgba(245,158,11,0.2);border-bottom:1px solid rgba(245,158,11,0.2);padding:14px 28px;display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;}
-.loytxt{font-size:13px;font-weight:500;color:var(--muted);}
-.loypts{font-family:'Bebas Neue',sans-serif;font-size:24px;background:linear-gradient(135deg,var(--gold2),var(--gold3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+/* LOYALTY */
+.loybar{background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(252,211,77,0.06));border-top:1px solid rgba(251,191,36,0.2);border-bottom:1px solid rgba(251,191,36,0.2);padding:14px 24px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;}
+.loypts{font-family:'Bebas Neue',sans-serif;font-size:26px;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 
-/* ═══ DETAIL PAGE ═══ */
+/* POPUP ALERT */
+.popup-alert{position:fixed;bottom:24px;left:24px;background:rgba(22,0,42,0.97);border:1px solid var(--border2);border-radius:16px;padding:14px 18px;display:flex;align-items:center;gap:12px;z-index:800;box-shadow:0 12px 40px rgba(139,92,246,0.3);backdrop-filter:blur(16px);max-width:300px;transform:translateX(-120%);transition:transform .5s cubic-bezier(.23,1,.32,1);}
+.popup-alert.show{transform:translateX(0);}
+.pa-icon{font-size:24px;flex-shrink:0;}
+.pa-name{font-size:12px;font-weight:800;color:var(--white);margin-bottom:2px;}
+.pa-msg{font-size:11px;color:var(--muted);}
+.pa-time{font-size:9px;color:var(--dim);margin-top:2px;}
+
+/* DETAIL PAGE */
 #detailPage{background:var(--bg);}
-.dnav{background:rgba(3,7,30,0.95);border-bottom:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(16px);}
+.dnav{background:rgba(10,0,21,0.97);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(16px);}
 .bc{display:flex;align-items:center;gap:6px;font-size:11px;letter-spacing:.5px;}
 .bc a{color:var(--dim);cursor:pointer;transition:color .2s;}
-.bc a:hover{color:var(--purple3);}
-.bc .sep{color:rgba(124,58,237,0.3);}
-.dwrap{max-width:1200px;margin:0 auto;padding:44px 28px;}
-.dlayout{display:grid;grid-template-columns:1.1fr 1fr;gap:60px;margin-bottom:60px;}
-@media(max-width:768px){.dlayout{grid-template-columns:1fr;gap:28px;}.dwrap{padding:20px 16px;}.nav-in{padding:10px 16px;}.section{padding:40px 16px;}.g-btn span{display:none;}.stats-in{gap:0;}}
-.dmai{width:100%;height:480px;background:var(--card);border-radius:16px;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);position:relative;}
-.dmai img{width:100%;height:100%;object-fit:contain;background:var(--card);}
+.bc a:hover{color:var(--pink);}
+.bc .sep{color:rgba(244,114,182,0.3);}
+.dwrap{max-width:1200px;margin:0 auto;padding:40px 24px;}
+.dlayout{display:grid;grid-template-columns:1.1fr 1fr;gap:52px;margin-bottom:60px;}
+@media(max-width:768px){
+  .dlayout{grid-template-columns:1fr;gap:24px;}
+  .dwrap{padding:20px 16px;}
+  .nav-in{padding:10px 14px;gap:8px;}
+  .section{padding:40px 14px;}
+  .hero h1{letter-spacing:-1px;}
+  .pgrid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;}
+  .pimg-wrap{height:180px;}
+  .peph{font-size:60px;}
+}
+.dmai{width:100%;height:460px;background:var(--card);border-radius:20px;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);position:relative;}
+.dmai img{width:100%;height:100%;object-fit:contain;}
 .dthumbs{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
-.dthumb{width:70px;height:70px;border-radius:9px;border:2px solid var(--border);overflow:hidden;cursor:pointer;transition:all .2s;}
-.dthumb:hover,.dthumb.on{border-color:var(--purple3);box-shadow:0 0 0 2px rgba(124,58,237,0.2);}
+.dthumb{width:66px;height:66px;border-radius:10px;border:2px solid var(--border);overflow:hidden;cursor:pointer;transition:all .2s;}
+.dthumb:hover,.dthumb.on{border-color:var(--pink);}
 .dthumb img{width:100%;height:100%;object-fit:cover;}
-.dbrand{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--purple3);font-weight:700;margin-bottom:8px;}
-.dname{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,3vw,34px);font-weight:700;color:var(--white);line-height:1.2;margin-bottom:10px;}
-.dstrow{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
-.dst{color:var(--gold2);font-size:15px;}
+.dbrand{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--pink);font-weight:800;margin-bottom:6px;}
+.dname{font-family:'Poppins',sans-serif;font-size:clamp(20px,2.8vw,30px);font-weight:800;color:var(--white);line-height:1.2;margin-bottom:10px;}
+.dstrow{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.dst{color:var(--gold);font-size:14px;}
 .drc{font-size:11px;color:var(--dim);}
-.vbdg{display:flex;align-items:center;gap:4px;background:rgba(16,185,129,0.12);border:1px solid rgba(52,211,153,0.3);color:var(--emerald3);padding:3px 10px;border-radius:20px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
-.dprice{font-family:'Bebas Neue',sans-serif;font-size:46px;color:var(--white);line-height:1;}
-.doldp{font-size:14px;color:var(--dim);text-decoration:line-through;margin-top:3px;}
-.dsave{display:inline-flex;align-items:center;gap:6px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);color:#fca5a5;padding:4px 12px;border-radius:5px;font-size:11px;font-weight:700;margin-top:6px;}
-.olbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:var(--dim);margin-bottom:8px;margin-top:20px;}
-.szopts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;}
-.szopt{border:1px solid var(--border);border-radius:7px;padding:8px 16px;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;transition:all .2s;background:rgba(255,255,255,0.03);}
-.szopt:hover{border-color:var(--purple3);color:var(--purple3);}
-.szopt.on{border-color:var(--purple3);background:rgba(124,58,237,0.1);color:var(--purple3);}
-.pkopts{display:flex;gap:10px;flex-wrap:wrap;}
-.pkopt{border:1px solid var(--border);border-radius:10px;padding:12px 18px;cursor:pointer;transition:all .2s;min-width:110px;text-align:center;background:rgba(255,255,255,0.02);}
-.pkopt:hover{border-color:var(--purple3);}
-.pkopt.on{border-color:var(--purple3);background:rgba(124,58,237,0.1);}
-.pklbl{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);margin-bottom:3px;}
-.pkp{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);}
-.pksv{font-size:9px;color:var(--emerald3);font-weight:700;}
-.qrow{display:flex;align-items:center;gap:12px;margin-top:4px;}
-.qb{width:36px;height:36px;border:1px solid var(--border);border-radius:7px;background:rgba(255,255,255,0.04);color:var(--white);font-size:18px;cursor:pointer;font-weight:700;transition:all .2s;}
-.qb:hover{border-color:var(--purple3);color:var(--purple3);}
-.qn{font-family:'Bebas Neue',sans-serif;font-size:22px;font-weight:700;min-width:28px;text-align:center;color:var(--white);}
-.qtot{font-size:12px;color:var(--muted);}
-.qtot strong{color:var(--emerald3);}
-.ddel{background:rgba(5,150,105,0.06);border:1px solid rgba(52,211,153,0.2);border-radius:10px;padding:14px 16px;margin:18px 0;}
-.ddel p{font-size:11px;color:var(--emerald3);font-weight:500;margin-bottom:4px;display:flex;align-items:center;gap:6px;}
-/* 5H sold info on detail */
-.dsold5h{display:flex;align-items:center;gap:8px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:8px;padding:10px 14px;margin-bottom:16px;}
-.dsold5h-val{font-family:'Bebas Neue',sans-serif;font-size:22px;background:linear-gradient(135deg,var(--gold2),var(--gold3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.dsold5h-lbl{font-size:11px;color:var(--muted);}
-.dbuy{width:100%;background:linear-gradient(135deg,var(--purple),var(--purple2));color:#fff;padding:16px;border:none;border-radius:10px;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;margin-bottom:10px;transition:all .3s;position:relative;overflow:hidden;}
-.dbuy::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--purple2),var(--pink));opacity:0;transition:opacity .3s;}
-.dbuy:hover::after{opacity:1;}
-.dbuy:hover{transform:translateY(-2px);box-shadow:0 12px 36px var(--glow-p);}
-.dbuy span{position:relative;z-index:1;}
-.dcart{width:100%;background:transparent;color:var(--emerald3);padding:14px;border:1px solid rgba(52,211,153,0.35);border-radius:10px;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s;margin-bottom:12px;}
-.dcart:hover{background:rgba(52,211,153,0.07);border-color:var(--emerald2);}
-.dvlive{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);padding:8px 12px;background:rgba(124,58,237,0.06);border:1px solid var(--border);border-radius:8px;margin-bottom:10px;}
-.dvlive .vd2{width:7px;height:7px;background:var(--emerald2);border-radius:50%;animation:pulse 1.5s infinite;}
-.dtrust{display:flex;gap:8px;flex-wrap:wrap;}
-.dtch{font-size:10px;color:var(--dim);font-weight:500;}
-.descbox{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;margin-top:32px;}
-.desbt{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--white);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);}
-.desct{font-size:14px;line-height:1.9;color:var(--muted);}
-.relgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-top:20px;}
-.relcrd{background:var(--card);border:1px solid var(--border);border-radius:11px;overflow:hidden;cursor:pointer;transition:all .25s;}
-.relcrd:hover{border-color:var(--purple3);transform:translateY(-5px);box-shadow:0 12px 32px rgba(124,58,237,0.2);}
-.relimg{height:140px;overflow:hidden;background:var(--bg3);display:flex;align-items:center;justify-content:center;}
-.relimg img{width:100%;height:100%;object-fit:cover;transition:transform .4s;}
-.relcrd:hover .relimg img{transform:scale(1.05);}
-.reli{padding:12px;}
-.reln{font-size:12px;font-weight:500;color:var(--white);margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.relp{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--purple3);}
+.vbdg{display:flex;align-items:center;gap:4px;background:rgba(16,185,129,0.12);border:1px solid rgba(52,211,153,0.3);color:var(--emerald2);padding:3px 10px;border-radius:20px;font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;}
 
-/* ═══ MODALS ═══ */
-.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:800;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(8px);}
+/* DETAIL VIEWER COUNT */
+.d-live-viewers{display:flex;align-items:center;gap:8px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:10px 14px;margin-bottom:14px;}
+.d-live-num{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#fca5a5;line-height:1;}
+.d-live-lbl{font-size:11px;color:var(--muted);}
+.d-live-anim{font-size:16px;margin-left:auto;animation:stickerWiggle 2s infinite;}
+
+.disc-big{position:absolute;top:16px;left:16px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:22px;width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(239,68,68,0.5);border:2px solid rgba(255,255,255,0.3);flex-direction:column;z-index:4;animation:stickerWiggle 3s infinite;}
+.disc-big .offs{font-size:9px;font-family:'Nunito',sans-serif;font-weight:900;margin-top:-4px;}
+
+.dprice{font-family:'Bebas Neue',sans-serif;font-size:46px;color:var(--white);line-height:1;}
+.doldp{font-size:14px;color:var(--dim);text-decoration:line-through;margin-top:2px;}
+.dsave{display:inline-flex;align-items:center;gap:6px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);color:#fca5a5;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:800;margin-top:6px;}
+.olbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:800;color:var(--dim);margin-bottom:7px;margin-top:18px;}
+.szopts{display:flex;gap:7px;flex-wrap:wrap;}
+.szopt{border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .2s;background:rgba(255,255,255,0.03);}
+.szopt:hover,.szopt.on{border-color:var(--pink);background:rgba(244,114,182,0.1);color:var(--pink);}
+.pkopts{display:flex;gap:9px;flex-wrap:wrap;}
+.pkopt{border:1px solid var(--border);border-radius:12px;padding:11px 16px;cursor:pointer;transition:all .2s;min-width:100px;text-align:center;background:rgba(255,255,255,0.02);}
+.pkopt:hover,.pkopt.on{border-color:var(--pink);background:rgba(244,114,182,0.08);}
+.pklbl{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);margin-bottom:2px;}
+.pkp{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);}
+.pksv{font-size:9px;color:var(--emerald2);font-weight:700;}
+.qrow{display:flex;align-items:center;gap:10px;margin-top:4px;}
+.qb{width:36px;height:36px;border:1px solid var(--border);border-radius:8px;background:rgba(255,255,255,0.04);color:var(--white);font-size:18px;cursor:pointer;font-weight:800;transition:all .2s;}
+.qb:hover{border-color:var(--pink);color:var(--pink);}
+.qn{font-family:'Bebas Neue',sans-serif;font-size:22px;min-width:28px;text-align:center;color:var(--white);}
+.qtot{font-size:12px;color:var(--muted);}
+.qtot strong{color:var(--emerald2);}
+.ddel{background:rgba(16,185,129,0.06);border:1px solid rgba(52,211,153,0.2);border-radius:12px;padding:14px 16px;margin:16px 0;}
+.ddel p{font-size:11px;color:var(--emerald2);font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:6px;}
+.dbuy{width:100%;background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;padding:16px;border:none;border-radius:14px;font-size:14px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;margin-bottom:10px;transition:all .3s;box-shadow:0 6px 24px rgba(139,92,246,0.4);}
+.dbuy:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(139,92,246,0.6);}
+.dcart{width:100%;background:transparent;color:var(--emerald2);padding:14px;border:2px solid rgba(52,211,153,0.35);border-radius:14px;font-size:13px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:all .2s;margin-bottom:10px;}
+.dcart:hover{background:rgba(52,211,153,0.08);border-color:var(--emerald2);}
+.dtrust{display:flex;gap:8px;flex-wrap:wrap;}
+.dtch{font-size:10px;color:var(--dim);font-weight:600;}
+.descbox{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px;margin-top:28px;}
+.desbt{font-family:'Poppins',sans-serif;font-size:18px;font-weight:800;color:var(--white);margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+.desct{font-size:14px;line-height:1.9;color:var(--muted);}
+.relgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-top:18px;}
+.relcrd{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .25s;}
+.relcrd:hover{border-color:var(--pink);transform:translateY(-5px);}
+.relimg{height:130px;overflow:hidden;background:var(--bg3);display:flex;align-items:center;justify-content:center;}
+.relimg img{width:100%;height:100%;object-fit:cover;transition:transform .4s;}
+.relcrd:hover .relimg img{transform:scale(1.06);}
+.reli{padding:10px;}
+.reln{font-size:12px;font-weight:700;color:var(--white);margin-bottom:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.relp{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--pink);}
+
+/* DETAIL REVIEWS */
+.drev-section{margin-top:32px;}
+.drev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-top:16px;}
+.drev-card{background:rgba(22,0,42,0.8);border:1px solid var(--border);border-radius:14px;padding:16px;}
+.drev-top{display:flex;align-items:center;gap:9px;margin-bottom:8px;}
+.drav{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:13px;}
+.drnm{font-weight:700;font-size:12px;color:var(--white);}
+.drct{font-size:10px;color:var(--dim);}
+.drst{color:var(--gold);font-size:12px;margin-bottom:4px;}
+.drtxt{font-size:12px;color:var(--muted);line-height:1.6;}
+.drverified{font-size:9px;color:var(--emerald2);font-weight:700;margin-top:6px;}
+
+/* MODALS */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:800;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(10px);}
 .ov.open{display:flex;}
-.modal{background:var(--card);border:1px solid var(--border2);border-radius:18px;width:100%;max-width:500px;max-height:93vh;overflow-y:auto;box-shadow:0 32px 100px rgba(124,58,237,0.25);}
-.mhdr{background:linear-gradient(135deg,rgba(124,58,237,0.3),rgba(5,150,105,0.15));padding:20px 26px;border-radius:18px 18px 0 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
-.mhdr h3{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--white);font-weight:700;}
+.modal{background:var(--card);border:1px solid var(--border2);border-radius:20px;width:100%;max-width:500px;max-height:93vh;overflow-y:auto;box-shadow:0 32px 100px rgba(139,92,246,0.3);}
+.mhdr{background:linear-gradient(135deg,rgba(139,92,246,0.25),rgba(244,114,182,0.15));padding:20px 24px;border-radius:20px 20px 0 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.mhdr h3{font-family:'Poppins',sans-serif;font-size:18px;color:var(--white);font-weight:800;}
 .mclose{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
 .mclose:hover{background:rgba(239,68,68,0.2);color:#fff;}
-.mbody{padding:24px;}
-.osumbox{background:rgba(124,58,237,0.07);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:18px;}
-.osumbox h4{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--purple3);font-weight:700;margin-bottom:10px;}
-.srow{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:5px;}
-.srow.tot{font-weight:700;font-size:16px;color:var(--white);border-top:1px solid var(--border);padding-top:9px;margin-top:7px;}
-.fg{margin-bottom:14px;}
-.fg label{display:block;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);font-weight:600;margin-bottom:5px;}
-.fg input,.fg select,.fg textarea{width:100%;padding:11px 14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--white);outline:none;transition:all .2s;}
-.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--purple3);background:rgba(124,58,237,0.06);box-shadow:0 0 0 3px rgba(124,58,237,0.1);}
+.mbody{padding:22px;}
+.osumbox{background:rgba(139,92,246,0.07);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;}
+.osumbox h4{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--pink);font-weight:800;margin-bottom:10px;}
+.srow{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:4px;}
+.srow.tot{font-weight:800;font-size:16px;color:var(--white);border-top:1px solid var(--border);padding-top:9px;margin-top:7px;}
+.fg{margin-bottom:13px;}
+.fg label{display:block;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);font-weight:800;margin-bottom:5px;}
+.fg input,.fg select,.fg textarea{width:100%;padding:11px 14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;font-size:13px;color:var(--white);outline:none;transition:all .2s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--pink);background:rgba(244,114,182,0.05);}
 .fg select option{background:var(--card);}
 .fg textarea{resize:vertical;min-height:60px;}
-.pbtn2{width:100%;background:linear-gradient(135deg,var(--purple),var(--purple2));color:#fff;padding:15px;border:none;border-radius:10px;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .3s;margin-top:6px;}
-.pbtn2:hover{transform:translateY(-2px);box-shadow:0 10px 32px var(--glow-p);}
-.succ{text-align:center;padding:40px 24px;}
-.sicon{font-size:64px;margin-bottom:16px;}
-.st2{font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--emerald3);margin-bottom:8px;}
-.ssub{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:20px;}
-.sdet{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:left;margin-bottom:20px;}
+.pbtn2{width:100%;background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;padding:15px;border:none;border-radius:12px;font-size:13px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:all .3s;margin-top:6px;box-shadow:0 6px 20px rgba(139,92,246,0.35);}
+.pbtn2:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(139,92,246,0.5);}
+.succ{text-align:center;padding:36px 20px;}
+.sicon{font-size:60px;margin-bottom:14px;}
+.st2{font-family:'Poppins',sans-serif;font-size:22px;color:var(--emerald2);margin-bottom:8px;font-weight:800;}
+.ssub{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:18px;}
+.sdet{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:left;margin-bottom:18px;}
 .sdr{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;}
 .sdr:last-child{border-bottom:none;}
 .sdr span:first-child{color:var(--dim);font-size:10px;letter-spacing:1px;text-transform:uppercase;}
-.sdr span:last-child{font-weight:600;color:var(--muted);}
-.ptn{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px;}
+.sdr span:last-child{font-weight:700;color:var(--muted);}
+.ptn{background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px;}
 
-/* ═══ CART ═══ */
+/* CART */
 .cov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:700;backdrop-filter:blur(4px);}
 .cov.open{display:block;}
-.cdr{position:fixed;right:0;top:0;height:100vh;width:400px;max-width:96vw;background:var(--card);z-index:701;display:flex;flex-direction:column;transform:translateX(110%);transition:transform .35s cubic-bezier(.4,0,.2,1);border-left:1px solid var(--border);}
+.cdr{position:fixed;right:0;top:0;height:100vh;width:380px;max-width:96vw;background:var(--card);z-index:701;display:flex;flex-direction:column;transform:translateX(110%);transition:transform .35s cubic-bezier(.4,0,.2,1);border-left:1px solid var(--border);}
 .cdr.open{transform:translateX(0);}
-.cdhdr{background:linear-gradient(135deg,rgba(124,58,237,0.2),rgba(5,150,105,0.1));padding:20px 24px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;border-bottom:1px solid var(--border);}
-.cdhdr h3{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--white);}
-.citems{flex:1;overflow-y:auto;padding:16px 20px;}
-.ci{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--border);}
-.ciimg{width:72px;height:72px;background:var(--bg3);border-radius:9px;overflow:hidden;flex-shrink:0;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;}
-.ciimg img{width:72px;height:72px;object-fit:cover;}
+.cdhdr{background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(244,114,182,0.1));padding:18px 22px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;border-bottom:1px solid var(--border);}
+.cdhdr h3{font-family:'Poppins',sans-serif;font-size:18px;color:var(--white);font-weight:800;}
+.citems{flex:1;overflow-y:auto;padding:14px 18px;}
+.ci{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+.ciimg{width:68px;height:68px;background:var(--bg3);border-radius:10px;overflow:hidden;flex-shrink:0;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;}
+.ciimg img{width:68px;height:68px;object-fit:cover;}
 .cinfo{flex:1;}
-.cin{font-weight:600;font-size:12px;color:var(--white);margin-bottom:2px;}
-.cisz{font-size:10px;color:var(--purple3);font-weight:600;letter-spacing:.5px;}
-.cip{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--white);margin-top:3px;}
-.ciqr{display:flex;align-items:center;gap:8px;margin-top:6px;}
-.ciqb{width:26px;height:26px;border:1px solid var(--border);border-radius:5px;background:rgba(255,255,255,0.04);color:var(--white);font-size:16px;cursor:pointer;font-weight:700;transition:all .2s;}
-.ciqb:hover{border-color:var(--purple3);}
-.ciqn{font-size:13px;font-weight:700;color:var(--white);}
+.cin{font-weight:700;font-size:12px;color:var(--white);margin-bottom:2px;}
+.cisz{font-size:10px;color:var(--pink);font-weight:700;}
+.cip{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--white);margin-top:2px;}
+.ciqr{display:flex;align-items:center;gap:7px;margin-top:5px;}
+.ciqb{width:24px;height:24px;border:1px solid var(--border);border-radius:5px;background:rgba(255,255,255,0.04);color:var(--white);font-size:15px;cursor:pointer;font-weight:800;transition:all .2s;}
+.ciqb:hover{border-color:var(--pink);}
+.ciqn{font-size:13px;font-weight:800;color:var(--white);}
 .cirm{background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer;margin-left:4px;}
 .cirm:hover{color:#ef4444;}
-.cft{padding:18px 20px;border-top:1px solid var(--border);flex-shrink:0;}
-.ctots .cr{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px;}
-.ctots .grand{font-weight:700;font-size:18px;color:var(--white);border-top:1px solid var(--border);padding-top:10px;margin-top:6px;}
-.ckbtn{width:100%;background:linear-gradient(135deg,var(--purple),var(--purple2));color:#fff;padding:14px;border:none;border-radius:10px;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;margin-top:12px;transition:all .3s;}
-.ckbtn:hover{transform:translateY(-2px);box-shadow:0 8px 24px var(--glow-p);}
+.cft{padding:16px 18px;border-top:1px solid var(--border);flex-shrink:0;}
+.ctots .cr{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:5px;}
+.ctots .grand{font-weight:800;font-size:17px;color:var(--white);border-top:1px solid var(--border);padding-top:9px;margin-top:5px;}
+.ckbtn{width:100%;background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;padding:14px;border:none;border-radius:12px;font-size:13px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;margin-top:10px;transition:all .3s;box-shadow:0 4px 16px rgba(139,92,246,0.35);}
+.ckbtn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(139,92,246,0.5);}
 .emc{text-align:center;padding:60px 20px;color:var(--dim);}
 .emci{font-size:60px;margin-bottom:12px;}
 
-/* ═══ GOOGLE LOGIN POPUP ═══ */
-.lpopu{display:none;position:fixed;inset:0;z-index:900;align-items:center;justify-content:center;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);}
-.lpopu.open{display:flex;}
-.lpcard{background:var(--card2);border:1px solid var(--border2);border-radius:22px;padding:44px 38px;width:100%;max-width:430px;text-align:center;box-shadow:0 32px 100px rgba(124,58,237,0.3);}
-.lplogo{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;color:var(--white);margin-bottom:4px;}
-.lplogo em{font-style:normal;background:linear-gradient(135deg,var(--purple3),var(--emerald3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.lpsub{font-size:13px;color:var(--muted);margin-bottom:28px;line-height:1.7;}
-.perks{display:flex;flex-direction:column;gap:8px;margin-bottom:28px;text-align:left;}
-.perk{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted);background:rgba(255,255,255,0.03);border:1px solid var(--border);padding:10px 14px;border-radius:9px;}
-.perk .pi{font-size:18px;}
-.gsbtn{width:100%;display:flex;align-items:center;justify-content:center;gap:12px;background:rgba(255,255,255,0.95);border:none;border-radius:10px;padding:14px 20px;font-size:14px;font-weight:700;color:#333;cursor:pointer;box-shadow:0 4px 24px rgba(0,0,0,.3);transition:all .25s;margin-bottom:12px;}
-.gsbtn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.4);}
-.gsvg{width:22px;height:22px;}
-.skipbtn{background:none;border:none;color:var(--dim);font-size:12px;cursor:pointer;text-decoration:underline;}
-.skipbtn:hover{color:var(--muted);}
+/* WISH MODAL */
+.wish-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;}
 
-/* ═══ TOAST ═══ */
-.toast{position:fixed;top:20px;right:20px;background:var(--card2);color:var(--white);border:1px solid var(--border2);padding:14px 22px;border-radius:10px;font-size:12px;font-weight:600;letter-spacing:.5px;z-index:9999;transform:translateX(120%);opacity:0;transition:all .4s cubic-bezier(.23,1,.32,1);max-width:280px;box-shadow:0 12px 40px rgba(124,58,237,0.3);}
+/* TOAST */
+.toast{position:fixed;top:20px;right:20px;background:var(--card);color:var(--white);border:1px solid var(--border2);padding:14px 20px;border-radius:14px;font-size:12px;font-weight:700;z-index:9999;transform:translateX(130%);opacity:0;transition:all .4s cubic-bezier(.23,1,.32,1);max-width:280px;box-shadow:0 12px 40px rgba(139,92,246,0.3);}
 .toast.show{transform:translateX(0);opacity:1;}
-.toast.ok{background:rgba(5,150,105,0.2);border-color:var(--emerald3);color:var(--emerald3);}
+.toast.ok{background:rgba(16,185,129,0.18);border-color:var(--emerald2);color:var(--emerald2);}
 .toast.err{background:rgba(239,68,68,0.15);border-color:#ef4444;color:#fca5a5;}
-.toast.info{background:rgba(124,58,237,0.2);border-color:var(--purple3);color:var(--purple3);}
+.toast.info{background:rgba(139,92,246,0.18);border-color:var(--purple3);color:var(--purple3);}
 
-footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 28px 28px;}
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:56px 24px 24px;}
 .fin{max-width:1200px;margin:0 auto;}
-.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:40px;margin-bottom:40px;}
-.fbrand .fl{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:var(--white);margin-bottom:6px;}
-.fbrand .fl em{font-style:normal;background:linear-gradient(135deg,var(--purple3),var(--emerald3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:36px;margin-bottom:36px;}
+.fbrand .fl{font-family:'Poppins',sans-serif;font-size:22px;font-weight:800;color:var(--white);margin-bottom:4px;}
+.fbrand .fl span{color:var(--pink);}
 .fbrand p{font-size:12px;color:var(--dim);line-height:1.7;margin-top:8px;}
-.fcol h4{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:14px;}
-.fcol a{display:block;font-size:12px;color:rgba(255,255,255,0.3);margin-bottom:8px;cursor:pointer;transition:color .2s;text-decoration:none;}
-.fcol a:hover{color:var(--purple3);}
-.fbot{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
-.fbot p{font-size:11px;color:rgba(255,255,255,0.2);}
-.fbdgs{display:flex;gap:8px;}
-.fbdg{background:rgba(255,255,255,0.04);border:1px solid var(--border);padding:4px 12px;border-radius:5px;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1px;text-transform:uppercase;}
+.fcol h4{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);font-weight:800;margin-bottom:12px;}
+.fcol a{display:block;font-size:12px;color:rgba(255,255,255,0.25);margin-bottom:7px;cursor:pointer;transition:color .2s;text-decoration:none;}
+.fcol a:hover{color:var(--pink);}
+.fbot{border-top:1px solid var(--border);padding-top:18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+.fbot p{font-size:11px;color:rgba(255,255,255,0.15);}
+.fbdgs{display:flex;gap:7px;}
+.fbdg{background:rgba(255,255,255,0.04);border:1px solid var(--border);padding:4px 10px;border-radius:5px;font-size:9px;color:rgba(255,255,255,0.25);letter-spacing:1px;text-transform:uppercase;}
 </style>
 </head>
 <body>
 
-<!-- CURSOR -->
 <div class="cursor" id="cursor"></div>
-<div class="cursor-trail" id="cursorTrail"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<canvas id="bgCanvas"></canvas>
+<div class="bg-orbs"><div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div><div class="orb orb4"></div></div>
 
-<!-- 3D PARTICLES CANVAS -->
-<canvas id="canvas3d"></canvas>
+<!-- POPUP ALERT -->
+<div class="popup-alert" id="popupAlert">
+  <div class="pa-icon" id="paIcon">🛍️</div>
+  <div><div class="pa-name" id="paName">Someone</div><div class="pa-msg" id="paMsg">just placed an order!</div><div class="pa-time" id="paTime">2 minutes ago</div></div>
+</div>
 
-<!-- ═══════════ STORE PAGE ═══════════ -->
+<!-- ════ STORE PAGE ════ -->
 <div id="storePage" class="page active">
 
-<div class="ann">✦ FLASH SALE LIVE ✦ Cash on Delivery · Free Delivery above PKR 3,000 · 50,000+ Trusted Customers ✦</div>
+<div class="ann"><span class="ann-txt">🔥 FLASH SALE LIVE &nbsp;✦&nbsp; Cash on Delivery &nbsp;✦&nbsp; Free Delivery Above PKR 3,000 &nbsp;✦&nbsp; 50,000+ Happy Customers &nbsp;✦&nbsp; Easy 7-Day Returns 🔥</span></div>
 
 <nav class="nav">
   <div class="nav-in">
     <div class="logo" onclick="goCat('all')">
-      <div class="logo-text">Nest<span>Kart</span></div>
-      <div class="logo-sub">Pakistan's #1 Luxury Store</div>
+      <div class="logo-icon">🛍️</div>
+      <div class="logo-text-wrap">
+        <div class="logo-text">Nest<span>Kart</span></div>
+        <div class="logo-sub">Pakistan's #1 Luxury Store</div>
+      </div>
     </div>
     <div class="srch">
-      <input type="text" id="srchIn" placeholder="Search luxury products..." oninput="doSearch()">
-      <button class="srch-btn">⌕</button>
+      <input type="text" id="srchIn" placeholder="🔍  Search products..." oninput="doSearch()">
+      <button class="srch-btn">🔍</button>
     </div>
     <div class="nav-right">
-      <div id="authArea">
-        <button class="g-btn" onclick="openLP()">
-          <svg class="gsvg" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-          <span>Sign in with Google</span>
-        </button>
+      <div class="nav-icon-btn" onclick="openWish()" title="Wishlist">
+        <span>♡</span>
+        <span class="badge-dot" id="wb1">0</span>
       </div>
-      <div id="userArea" style="display:none;">
-        <button class="u-btn" onclick="openLP()"><img id="uavatar" src="" alt=""><span id="uname">User</span></button>
+      <div class="nav-icon-btn" title="Track Order" onclick="showToast('📦 Contact us on WhatsApp to track your order!','info')">
+        <span>📦</span>
       </div>
-      <button class="wb" onclick="openWish()">♡<span class="wbdg" id="wb1">0</span></button>
-      <button class="cbtn" onclick="openCart()"><span>🛒 Cart</span><span class="cc" id="cn1">0</span></button>
+      <div class="nav-icon-btn" title="Support" onclick="showToast('📞 Call us: 0314-5338766','info')">
+        <span>📞</span>
+      </div>
+      <button class="cart-btn" onclick="openCart()">
+        🛒 Cart <span class="cc" id="cn1">0</span>
+      </button>
     </div>
   </div>
   <div class="catnav"><div class="catnav-in" id="catBar"></div></div>
@@ -472,43 +487,36 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 28p
 <div class="flash">
   <span class="flash-lbl">⚡ FLASH SALE ENDS IN</span>
   <div class="ftimer">
-    <div class="fblock"><span class="fnum" id="fh">11</span><span class="flab">Hours</span></div>
+    <div class="fblock"><span class="fnum" id="fh">08</span><span class="flab">Hours</span></div>
     <span class="fsep">:</span>
-    <div class="fblock"><span class="fnum" id="fm">47</span><span class="flab">Mins</span></div>
+    <div class="fblock"><span class="fnum" id="fm">34</span><span class="flab">Mins</span></div>
     <span class="fsep">:</span>
-    <div class="fblock"><span class="fnum" id="fs">32</span><span class="flab">Secs</span></div>
+    <div class="fblock"><span class="fnum" id="fs">17</span><span class="flab">Secs</span></div>
   </div>
-  <span style="font-size:13px;color:var(--muted);">Up to <strong style="color:var(--gold2);">40% OFF</strong> selected items</span>
+  <span style="font-size:13px;color:var(--muted);">Up to <strong style="color:var(--gold);">70% OFF</strong> selected items 🔥</span>
 </div>
 
-<!-- ═══ 5-HOUR SALES STATS ═══ -->
-<div class="stats-bar">
-  <div class="stats-in" id="statsBar"></div>
-</div>
+<!-- STATS BAR -->
+<div class="stats-bar"><div class="stats-in" id="statsBar"></div></div>
 
 <!-- TICKER -->
 <div class="ticker"><div class="ticker-in" id="tickIn"></div></div>
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-mesh"></div>
-  <div class="hero-lines">
-    <div class="hline"></div><div class="hline"></div><div class="hline"></div>
-    <div class="vline"></div><div class="vline"></div><div class="vline"></div>
-  </div>
   <div class="hero-content">
-    <div class="hero-pill"><span class="hpulse"></span>Pakistan's Most Trusted Luxury Store</div>
-    <h1>Where Luxury<br>Meets <em>Your Lifestyle</em></h1>
-    <p class="hero-sub">Premium Kitchen · Fashion · Electronics · Beauty · Home Decor<br>Cash on Delivery — Delivered Anywhere in Pakistan</p>
-    <div class="hero-metrics">
-      <div class="hmet"><div class="hmet-n" id="liveV">247</div><div class="hmet-l">Live Shoppers</div></div>
-      <div class="hmet"><div class="hmet-n">50K+</div><div class="hmet-l">Customers</div></div>
-      <div class="hmet"><div class="hmet-n">4.9★</div><div class="hmet-l">Avg Rating</div></div>
-      <div class="hmet"><div class="hmet-n" id="soldToday">0</div><div class="hmet-l">Sold Today</div></div>
+    <div class="hero-badge"><span class="live-dot"></span> <span id="liveV">247</span> People Shopping Right Now</div>
+    <h1>Pakistan's Most<br><span class="grad">Loved Luxury Store</span></h1>
+    <p class="hero-sub">Premium Kitchen · Fashion · Electronics · Beauty · Home Decor<br>💰 Cash on Delivery — Delivered Anywhere in Pakistan 🚚</p>
+    <div class="hero-stats">
+      <div class="hstat"><div class="hstat-n" id="soldToday">189</div><div class="hstat-l">Sold Today</div></div>
+      <div class="hstat"><div class="hstat-n">50K+</div><div class="hstat-l">Customers</div></div>
+      <div class="hstat"><div class="hstat-n">4.9★</div><div class="hstat-l">Avg Rating</div></div>
+      <div class="hstat"><div class="hstat-n">130+</div><div class="hstat-l">Cities</div></div>
     </div>
     <div class="hcta">
-      <button class="btn-hero" onclick="document.getElementById('shopSec').scrollIntoView({behavior:'smooth'})"><span>Shop Now — Best Deals</span></button>
-      <button class="btn-hero2" onclick="goCat('Clothing')">Explore Collections</button>
+      <button class="btn-main" onclick="document.getElementById('shopSec').scrollIntoView({behavior:'smooth'})">🛍️ Shop Best Deals</button>
+      <button class="btn-sec" onclick="goCat('Clothing')">✨ View Collections</button>
     </div>
   </div>
 </section>
@@ -516,26 +524,26 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 28p
 <!-- TRUST -->
 <div class="trust">
   <div class="tch"><div class="tch-ic">🚚</div><div class="tch-txt"><strong>3–6 Day Delivery</strong><span>All Over Pakistan · PKR 200</span></div></div>
-  <div class="tch"><div class="tch-ic">💳</div><div class="tch-txt"><strong>Cash on Delivery</strong><span>Pay when you receive</span></div></div>
+  <div class="tch"><div class="tch-ic">💰</div><div class="tch-txt"><strong>Cash on Delivery</strong><span>Pay when you receive</span></div></div>
   <div class="tch"><div class="tch-ic">🔄</div><div class="tch-txt"><strong>Easy Returns</strong><span>7-Day Return Policy</span></div></div>
   <div class="tch"><div class="tch-ic">⭐</div><div class="tch-txt"><strong>100% Authentic</strong><span>Quality Guaranteed</span></div></div>
-  <div class="tch"><div class="tch-ic">🛡</div><div class="tch-txt"><strong>Buyer Protection</strong><span>Safe & Secure</span></div></div>
+  <div class="tch"><div class="tch-ic">🛡️</div><div class="tch-txt"><strong>Buyer Protection</strong><span>Safe & Secure</span></div></div>
 </div>
 
 <!-- CATEGORIES -->
 <section class="section">
-  <div class="sec-head"><div class="sec-eye">Explore</div><h2 class="sec-t">Our <em>Collections</em></h2><div class="sec-line"></div><p class="sec-sub">Curated luxury for every lifestyle</p></div>
+  <div class="sec-head"><div class="sec-eye">Explore</div><h2 class="sec-t">Our <em>Collections</em></h2><div class="sec-line"></div></div>
   <div class="catgrid" id="catGrid"></div>
 </section>
 
 <!-- SHOP -->
 <section class="section" id="shopSec" style="padding-top:0;">
   <div class="sec-head"><div class="sec-eye">Luxury Products</div><h2 class="sec-t" id="secT">All <em>Products</em></h2><div class="sec-line"></div></div>
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px;">
-    <div style="display:flex;gap:8px;flex-wrap:wrap;" id="fbtns"></div>
-    <div style="display:flex;align-items:center;gap:12px;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
+    <div style="display:flex;gap:7px;flex-wrap:wrap;" id="fbtns"></div>
+    <div style="display:flex;align-items:center;gap:10px;">
       <span id="pcnt" style="font-size:11px;color:var(--dim);"></span>
-      <select id="sortSel" onchange="doSort()" style="background:var(--card);border:1px solid var(--border);color:var(--muted);padding:8px 14px;font-size:12px;border-radius:7px;cursor:pointer;outline:none;">
+      <select id="sortSel" onchange="doSort()" style="background:var(--card);border:1px solid var(--border);color:var(--muted);padding:8px 14px;font-size:12px;border-radius:10px;cursor:pointer;outline:none;">
         <option value="default">Sort: Featured</option>
         <option value="low">Price: Low → High</option>
         <option value="high">Price: High → Low</option>
@@ -548,7 +556,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 28p
 </section>
 
 <!-- FEATURES -->
-<section style="background:var(--bg2);padding:70px 0;border-top:1px solid var(--border);">
+<section style="background:rgba(13,0,26,0.95);padding:60px 0;border-top:1px solid var(--border);">
   <div class="section" style="padding-top:0;padding-bottom:0;">
     <div class="sec-head"><div class="sec-eye">Why NestKart?</div><h2 class="sec-t">Why <em>50,000+</em> Trust Us</h2><div class="sec-line"></div></div>
     <div class="featgrid">
@@ -562,22 +570,22 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 28p
   </div>
 </section>
 
-<!-- SOCIAL PROOF -->
+<!-- REVIEWS -->
 <section class="section">
   <div class="sec-head"><div class="sec-eye">Real Stories</div><h2 class="sec-t">What Customers <em>Say</em></h2><div class="sec-line"></div></div>
   <div class="prow2" id="prow"></div>
 </section>
 
 <div class="loybar">
-  <span class="loytxt">🎁 Your NestPoints Balance:</span>
+  <span style="font-size:13px;font-weight:600;color:var(--muted);">🎁 Your NestPoints:</span>
   <span class="loypts" id="lpts">0</span>
-  <span class="loytxt">pts — Earn more with every order!</span>
+  <span style="font-size:13px;font-weight:600;color:var(--muted);">pts — Earn more with every order!</span>
 </div>
 
 <footer>
   <div class="fin">
     <div class="fgrid">
-      <div class="fbrand"><div class="fl">Nest<em>Kart</em></div><p>Pakistan's #1 luxury online store. Premium products with guaranteed quality, Cash on Delivery nationwide.</p></div>
+      <div class="fbrand"><div class="fl">Nest<span>Kart</span></div><p>Pakistan's #1 luxury online store. Premium products with guaranteed quality, Cash on Delivery nationwide.</p></div>
       <div class="fcol"><h4>Shop</h4><a onclick="goCat('Clothing')">Clothing</a><a onclick="goCat('Shoes')">Shoes</a><a onclick="goCat('Electronics')">Electronics</a><a onclick="goCat('Beauty')">Beauty</a><a onclick="goCat('Kitchen Tools')">Kitchen Tools</a></div>
       <div class="fcol"><h4>Help</h4><a>Track My Order</a><a>Return Policy</a><a>Delivery Info</a><a>Size Guide</a><a>Contact Us</a></div>
       <div class="fcol"><h4>Contact</h4><a>📞 0314-5338766</a><a>⏰ Mon–Sat 9am–9pm</a><a>🚚 All Over Pakistan</a><a>💰 Cash on Delivery</a></div>
@@ -587,144 +595,113 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 28p
 </footer>
 </div>
 
-
-<!-- ═══════════ DETAIL PAGE ═══════════ -->
+<!-- ════ DETAIL PAGE ════ -->
 <div id="detailPage" class="page">
 <div class="ann">✦ FLASH SALE — Cash on Delivery · 7-Day Easy Returns · 100% Authentic ✦</div>
 <nav class="nav">
   <div class="nav-in">
-    <div class="logo" onclick="showStore()"><div class="logo-text">Nest<span>Kart</span></div><div class="logo-sub">Pakistan's #1 Luxury Store</div></div>
-    <div class="srch"><input type="text" placeholder="Search products..." oninput="doSearchVal(this.value)"><button class="srch-btn">⌕</button></div>
+    <div class="logo" onclick="showStore()">
+      <div class="logo-icon">🛍️</div>
+      <div class="logo-text-wrap">
+        <div class="logo-text">Nest<span>Kart</span></div>
+        <div class="logo-sub">Pakistan's #1 Luxury Store</div>
+      </div>
+    </div>
+    <div class="srch"><input type="text" placeholder="🔍 Search products..." oninput="doSearchVal(this.value)"><button class="srch-btn">🔍</button></div>
     <div class="nav-right">
-      <button class="wb" onclick="openWish()">♡<span class="wbdg" id="wb2">0</span></button>
-      <button class="cbtn" onclick="openCart()"><span>🛒 Cart</span><span class="cc" id="cn2">0</span></button>
+      <div class="nav-icon-btn" onclick="openWish()"><span>♡</span><span class="badge-dot" id="wb2">0</span></div>
+      <button class="cart-btn" onclick="openCart()">🛒 Cart <span class="cc" id="cn2">0</span></button>
     </div>
   </div>
 </nav>
 <div class="dnav">
-  <div class="bc"><a onclick="showStore()">Home</a><span class="sep">›</span><a id="brdC" onclick="showStore()">Products</a><span class="sep">›</span><span id="brdP" style="color:var(--muted);font-weight:500;">Product</span></div>
-  <button onclick="showStore()" style="background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--dim);padding:7px 16px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--purple3)';this.style.color='var(--purple3)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--dim)'">← Back</button>
+  <div class="bc"><a onclick="showStore()">Home</a><span class="sep">›</span><a id="brdC" onclick="showStore()">Products</a><span class="sep">›</span><span id="brdP" style="color:var(--muted);font-weight:600;">Product</span></div>
+  <button onclick="showStore()" style="background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--dim);padding:7px 16px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--pink)';this.style.color='var(--pink)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--dim)'">← Back</button>
 </div>
 <div class="dwrap" id="dWrap"></div>
 </div>
 
-
 <!-- MODALS -->
-<div class="ov" id="orderOv"><div class="modal"><div class="mhdr"><h3>Place Your Order</h3><button class="mclose" onclick="closeOrder()">✕</button></div><div class="mbody" id="orderBody"></div></div></div>
+<div class="ov" id="orderOv"><div class="modal"><div class="mhdr"><h3>✅ Place Your Order</h3><button class="mclose" onclick="closeOrder()">✕</button></div><div class="mbody" id="orderBody"></div></div></div>
 <div class="cov" id="cov" onclick="closeCart()"></div>
-<div class="cdr" id="cdr"><div class="cdhdr"><h3>Shopping Cart</h3><button class="mclose" onclick="closeCart()">✕</button></div><div class="citems" id="citems"></div><div class="cft" id="cft"></div></div>
-<div class="ov" id="wishOv"><div class="modal" style="max-width:540px;"><div class="mhdr"><h3>♡ My Wishlist</h3><button class="mclose" onclick="closeWish()">✕</button></div><div style="padding:20px;" id="wishCont"></div></div></div>
-
-<!-- GOOGLE POPUP -->
-<div class="lpopu" id="lpopu">
-  <div class="lpcard">
-    <div class="lplogo">Nest<em>Kart</em></div>
-    <p class="lpsub">Sign in for exclusive deals, order tracking & NestPoints rewards!</p>
-    <div class="perks">
-      <div class="perk"><span class="pi">🎁</span><span>Earn NestPoints on every purchase</span></div>
-      <div class="perk"><span class="pi">📦</span><span>Real-time order tracking</span></div>
-      <div class="perk"><span class="pi">💰</span><span>Exclusive member-only deals</span></div>
-      <div class="perk"><span class="pi">♡</span><span>Wishlist synced across devices</span></div>
-    </div>
-    <button class="gsbtn" onclick="doGoogleSignIn()">
-      <svg class="gsvg" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-      Continue with Google
-    </button>
-    <button class="skipbtn" onclick="closeLP()">Continue as guest →</button>
-  </div>
-</div>
+<div class="cdr" id="cdr"><div class="cdhdr"><h3>🛒 Shopping Cart</h3><button class="mclose" onclick="closeCart()">✕</button></div><div class="citems" id="citems"></div><div class="cft" id="cft"></div></div>
+<div class="ov" id="wishOv"><div class="modal" style="max-width:540px;"><div class="mhdr"><h3>♡ My Wishlist</h3><button class="mclose" onclick="closeWish()">✕</button></div><div style="padding:18px;" id="wishCont"></div></div></div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ═══════════════════════════════════════
-// 3D PARTICLE SYSTEM
-// ═══════════════════════════════════════
+// ═══ 3D ANIMATED BACKGROUND ═══
 (function(){
-  const c=document.getElementById('canvas3d');
+  const c=document.getElementById('bgCanvas');
   const ctx=c.getContext('2d');
   let W,H;
   const resize=()=>{W=c.width=window.innerWidth;H=c.height=window.innerHeight;};
   window.addEventListener('resize',resize);resize();
   let mx=W/2,my=H/2;
   document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
-  const N=120;
+  const N=100;
   const pts=Array.from({length:N},()=>({
-    x:Math.random()*W,y:Math.random()*H,z:Math.random()*800+100,
-    vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,vz:(Math.random()-.5)*1.5,
-    color:Math.random()<.5?'124,58,237':'5,150,105'
+    x:Math.random()*W,y:Math.random()*H,z:Math.random()*600+100,
+    vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,vz:(Math.random()-.5)*1.2,
+    c:Math.random()<.45?'139,92,246':Math.random()<.5?'244,114,182':'34,211,238'
   }));
-  function project(x,y,z){const f=600/(z+600);return{x:W/2+(x-W/2)*f,y:H/2+(y-H/2)*f,s:f};}
+  function project(x,y,z){const f=500/(z+500);return{x:W/2+(x-W/2)*f,y:H/2+(y-H/2)*f,s:f};}
   function draw(){
     ctx.clearRect(0,0,W,H);
     pts.forEach(p=>{
-      p.x+=p.vx+(mx-W/2)*0.00005;
-      p.y+=p.vy+(my-H/2)*0.00005;
-      p.z+=p.vz;
-      if(p.x<0)p.x=W;if(p.x>W)p.x=0;
-      if(p.y<0)p.y=H;if(p.y>H)p.y=0;
-      if(p.z<0)p.z=800;if(p.z>800)p.z=0;
+      p.x+=p.vx+(mx-W/2)*0.00004;p.y+=p.vy+(my-H/2)*0.00004;p.z+=p.vz;
+      if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;if(p.z<0)p.z=600;if(p.z>600)p.z=0;
       const pr=project(p.x,p.y,p.z);
-      const alpha=pr.s*0.6*Math.min(1,(800-p.z)/400);
-      ctx.beginPath();
-      ctx.arc(pr.x,pr.y,pr.s*1.8,0,Math.PI*2);
-      ctx.fillStyle=`rgba(${p.color},${alpha*0.8})`;
-      ctx.fill();
+      const al=pr.s*0.55*Math.min(1,(600-p.z)/300);
+      ctx.beginPath();ctx.arc(pr.x,pr.y,pr.s*2,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${p.c},${al*0.75})`;ctx.fill();
     });
-    for(let i=0;i<pts.length;i++){
-      for(let j=i+1;j<pts.length;j++){
-        const a=pts[i],b=pts[j];
-        const dist=Math.hypot(a.x-b.x,a.y-b.y);
-        if(dist<130){
-          const pa=project(a.x,a.y,a.z),pb=project(b.x,b.y,b.z);
-          const al=(1-dist/130)*0.08*Math.min(pa.s,pb.s);
-          ctx.beginPath();ctx.moveTo(pa.x,pa.y);ctx.lineTo(pb.x,pb.y);
-          ctx.strokeStyle=`rgba(124,58,237,${al})`;ctx.lineWidth=.5;ctx.stroke();
-        }
-      }
-    }
+    for(let i=0;i<pts.length;i++){for(let j=i+1;j<pts.length;j++){
+      const d=Math.hypot(pts[i].x-pts[j].x,pts[i].y-pts[j].y);
+      if(d<110){const pa=project(pts[i].x,pts[i].y,pts[i].z),pb=project(pts[j].x,pts[j].y,pts[j].z);
+        const al=(1-d/110)*0.07;ctx.beginPath();ctx.moveTo(pa.x,pa.y);ctx.lineTo(pb.x,pb.y);
+        ctx.strokeStyle=`rgba(139,92,246,${al})`;ctx.lineWidth=.5;ctx.stroke();}
+    }}
     requestAnimationFrame(draw);
   }
   draw();
 })();
 
-// ═══════════════════════════════════════
-// CUSTOM CURSOR
-// ═══════════════════════════════════════
+// ═══ CURSOR ═══
 (function(){
-  const cur=document.getElementById('cursor');
-  const trail=document.getElementById('cursorTrail');
+  const cur=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
   let tx=0,ty=0,cx=0,cy=0;
   document.addEventListener('mousemove',e=>{tx=e.clientX;ty=e.clientY;cur.style.left=tx+'px';cur.style.top=ty+'px';});
-  function animTrail(){
-    cx+=(tx-cx)*0.12;cy+=(ty-cy)*0.12;
-    trail.style.left=cx+'px';trail.style.top=cy+'px';
-    requestAnimationFrame(animTrail);
-  }
-  animTrail();
-  document.querySelectorAll('button,a,.pcard,.ccard,.cpill').forEach(el=>{
-    el.addEventListener('mouseenter',()=>{cur.style.width='20px';cur.style.height='20px';trail.style.width='48px';trail.style.height='48px';});
-    el.addEventListener('mouseleave',()=>{cur.style.width='12px';cur.style.height='12px';trail.style.width='32px';trail.style.height='32px';});
-  });
+  function anim(){cx+=(tx-cx)*.1;cy+=(ty-cy)*.1;ring.style.left=cx+'px';ring.style.top=cy+'px';requestAnimationFrame(anim);}
+  anim();
+  document.addEventListener('mousedown',()=>{cur.style.width='20px';cur.style.height='20px';});
+  document.addEventListener('mouseup',()=>{cur.style.width='14px';cur.style.height='14px';});
 })();
 
-// ═══════════════════════════════════════
-// DATA
-// ═══════════════════════════════════════
+// ═══ DATA ═══
 const EM={'Kitchen Tools':'🍳','Home Decor':'🏠','Gadgets':'🔧','Organizers':'🧺','Smart Lights':'💡','Cleaning':'🧹','Clothing':'👗','Electronics':'📱','Shoes':'👟','Beauty':'💄','Other':'📦'};
 const CATS=['all','Kitchen Tools','Home Decor','Gadgets','Clothing','Shoes','Electronics','Beauty','Smart Lights','Organizers','Cleaning','Other'];
 const CITIES=['Karachi','Lahore','Islamabad','Rawalpindi','Faisalabad','Multan','Peshawar','Quetta','Sialkot','Gujranwala','Hyderabad','Abbottabad','Mardan','Bahawalpur','Sargodha','Other'];
-const PROOFS=[
-  {n:'Ayesha Malik',c:'Lahore',r:5,t:'"Absolutely love my purchase! Quality is outstanding and delivery was super fast!"',ti:'2 hours ago',i:'A'},
-  {n:'Muhammad Usman',c:'Karachi',r:5,t:'"Best online shopping in Pakistan. 100% authentic products!"',ti:'5 hours ago',i:'M'},
-  {n:'Fatima Zahra',c:'Islamabad',r:5,t:'"COD makes it so convenient. Quality blew me away completely!"',ti:'1 day ago',i:'F'},
-  {n:'Ali Hassan',c:'Faisalabad',r:5,t:'"Ordered 3 times already. NestKart always delivers on time!"',ti:'1 day ago',i:'A'},
-  {n:'Sana Begum',c:'Multan',r:5,t:'"Premium quality at a fair price. Highly recommended to everyone!"',ti:'2 days ago',i:'S'},
-  {n:'Bilal Ahmed',c:'Rawalpindi',r:5,t:'"7-day return policy gave me confidence. Product is 100% authentic!"',ti:'3 days ago',i:'B'}
-];
-const TMSGS=['Ayesha from Lahore ordered Premium Kitchen Set','Muhammad from Karachi bought Designer Bag','Fatima from Islamabad ordered Smart LED Strip','Hassan from Peshawar purchased Kurta Collection','Sana from Multan bought Beauty Kit','Ali from Rawalpindi ordered Wireless Headphones','Zara from Quetta purchased Premium Shoes','Omar from Sialkot bought Home Decor Bundle','Nadia from Multan ordered Silk Fabric','Imran from Lahore bought Smart Watch'];
 
-// 5-HOUR SALES DATA — realistic per-category
+const POPUP_NAMES=['Ayesha','Muhammad Ali','Fatima','Hassan','Sana','Bilal','Zara','Omar','Nadia','Imran','Alia','Kamran','Rabia','Tariq','Hira'];
+const POPUP_CITIES=['Lahore','Karachi','Islamabad','Faisalabad','Multan','Peshawar','Rawalpindi','Quetta','Sialkot'];
+const POPUP_MSGS=['just placed an order! 🎉','added to cart 🛒','just bought this! ✅','ordered with COD 💰'];
+
+const AVCOLORS=['#8b5cf6','#ec4899','#10b981','#f59e0b','#3b82f6','#ef4444','#06b6d4','#84cc16'];
+
+const REVIEWS_POOL=[
+  {n:'Ayesha M.',c:'Lahore',r:5,t:'"Absolutely amazing quality! Bohot achi product hai, bilkul waisi hai jaise photo mein. Fast delivery bhi mili!"',ti:'2 hours ago',i:'A'},
+  {n:'Muhammad Ali',c:'Karachi',r:5,t:'"Best online shopping experience in Pakistan! Product 100% authentic hai. COD ka option bahut convenient hai."',ti:'5 hours ago',i:'M'},
+  {n:'Fatima Z.',c:'Islamabad',r:5,t:'"Pehli baar order kiya tha, soch rahi thi fake hoga. Lekin wow! Masha Allah quality bohot achi hai!"',ti:'1 day ago',i:'F'},
+  {n:'Hassan R.',c:'Faisalabad',r:5,t:'"3 baar order kar chuka hoon. Har baar delivery time pe aati hai aur quality guaranteed. Highly recommend!"',ti:'1 day ago',i:'H'},
+  {n:'Sana K.',c:'Multan',r:5,t:'"Premium quality at fair price. Packaging bhi bohot achi thi. NestKart se hi shopping karunga aagey bhi!"',ti:'2 days ago',i:'S'},
+  {n:'Bilal A.',c:'Rawalpindi',r:5,t:'"7-day return policy ne mujhe confident banaya. Product exactly waisa aaya jaise describe kiya tha. Zabardast!"',ti:'3 days ago',i:'B'},
+  {n:'Zara N.',c:'Quetta',r:5,t:'"Delivery super fast thi! 4 din mein Quetta aa gayi. Quality bohot achi hai, price bhi reasonable."',ti:'3 days ago',i:'Z'},
+  {n:'Imran K.',c:'Peshawar',r:5,t:'"Peshawar mein bhi delivery aati hai, trust ho gaya NestKart pe. Product ekdum original hai!"',ti:'4 days ago',i:'I'}
+];
+
+const TMSGS=['Ayesha from Lahore ordered Premium Kitchen Set 🍳','Muhammad from Karachi bought Designer Dress 👗','Fatima from Islamabad ordered Smart LED Strip 💡','Hassan from Peshawar purchased Premium Kurta 👔','Sana from Multan bought Beauty Kit 💄','Ali from Rawalpindi ordered Wireless Headphones 🎧','Zara from Quetta purchased Premium Shoes 👟','Omar from Sialkot bought Home Decor Bundle 🏠','Nadia from Multan ordered Silk Fabric ✨','Imran from Lahore bought Smart Watch ⌚','Rabia from Gujranwala ordered Organizer Set 🧺','Kamran from Hyderabad bought Cleaning Kit 🧹'];
+
 const SALES5H=[
   {cat:'👗 Clothing',sold:47,rev:182400},
   {cat:'👟 Shoes',sold:23,rev:94300},
@@ -733,58 +710,38 @@ const SALES5H=[
   {cat:'🍳 Kitchen',sold:28,rev:112800},
   {cat:'🏠 Home Decor',sold:16,rev:48400},
   {cat:'🔧 Gadgets',sold:21,rev:98100},
-  {cat:'ALL ITEMS',sold:189,rev:829800}
+  {cat:'🎯 ALL TODAY',sold:189,rev:829800}
 ];
 
-let prods=[],cart=JSON.parse(localStorage.getItem('nk6_cart')||'[]'),wish=JSON.parse(localStorage.getItem('nk6_wish')||'[]');
-let curCat='all',cProd=null,cPack=1,cSize='',cQty=1,cImg=0,curUser=null;
-let pts2=parseInt(localStorage.getItem('nk6_pts')||'0');
+let prods=[],cart=JSON.parse(localStorage.getItem('nk7_cart')||'[]'),wish=JSON.parse(localStorage.getItem('nk7_wish')||'[]');
+let curCat='all',cProd=null,cPack=1,cSize='',cQty=1,cImg=0;
+let pts2=parseInt(localStorage.getItem('nk7_pts')||'0');
 
-// ═══════════════════════════════════════
-// FIREBASE
-// ═══════════════════════════════════════
+// RANDOM DISCOUNT: 30–70% for each product
+function getDisc(p){
+  const seed=p.id||1;
+  const discounts=[30,35,40,45,50,55,60,65,70];
+  return discounts[seed % discounts.length];
+}
+
+// ═══ FIREBASE ═══
 window.addEventListener('fbReady',()=>{
   window.fsSnap(window.fsCol(window.db,'products'),snap=>{
     prods=snap.docs.map(d=>({...d.data(),_docId:d.id}));
     prods.sort((a,b)=>b.id-a.id);
     renderCatCards();renderGrid(getCurProds());buildCats();
-    const total=prods.reduce((s,p)=>s+(p.p1||0),0);
     const stdEl=document.getElementById('soldToday');
-    if(stdEl)stdEl.textContent=Math.floor(prods.length*3.4);
-  });
-  window.gAuthChange(u=>{
-    curUser=u;
-    if(u){
-      document.getElementById('authArea').style.display='none';
-      document.getElementById('userArea').style.display='block';
-      document.getElementById('uavatar').src=u.photoURL||'';
-      document.getElementById('uname').textContent=u.displayName?.split(' ')[0]||'User';
-      showToast('Welcome back, '+u.displayName?.split(' ')[0]+'! 👋','ok');
-    } else {
-      document.getElementById('authArea').style.display='block';
-      document.getElementById('userArea').style.display='none';
-    }
+    if(stdEl)stdEl.textContent=Math.floor(prods.length*3.7+189);
   });
 });
 
-// ═══════════════════════════════════════
-// GOOGLE AUTH
-// ═══════════════════════════════════════
-function openLP(){document.getElementById('lpopu').classList.add('open');}
-function closeLP(){document.getElementById('lpopu').classList.remove('open');}
-async function doGoogleSignIn(){try{await window.gSignIn();closeLP();}catch(e){showToast('Sign in failed','err');}}
-
-// ═══════════════════════════════════════
-// PAGES
-// ═══════════════════════════════════════
+// ═══ PAGES ═══
 function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
 function showStore(){showPage('storePage');buildCats();renderGrid(getCurProds());}
 
-// ═══════════════════════════════════════
-// CATEGORIES
-// ═══════════════════════════════════════
+// ═══ CATEGORIES ═══
 function buildCats(){
-  document.getElementById('catBar').innerHTML=CATS.map(c=>`<button class="cpill ${curCat===c?'on':''}" onclick="goCat('${c}')">${c==='all'?'✦ All':c}</button>`).join('');
+  document.getElementById('catBar').innerHTML=CATS.map(c=>`<button class="cpill ${curCat===c?'on':''}" onclick="goCat('${c}')">${c==='all'?'✨ All':EM[c]+' '+c}</button>`).join('');
 }
 function goCat(c){
   curCat=c;buildCats();
@@ -799,9 +756,7 @@ function renderCatCards(){
   el.innerHTML=CATS.filter(c=>c!=='all').map(c=>`<div class="ccard" onclick="goCat('${c}')"><span class="ccard-em">${EM[c]||'📦'}</span><div class="ccard-n">${c}</div><div class="ccard-c">${prods.filter(p=>p.cat===c).length} Products</div></div>`).join('');
 }
 
-// ═══════════════════════════════════════
-// SEARCH & SORT
-// ═══════════════════════════════════════
+// ═══ SEARCH & SORT ═══
 function doSearch(){const q=document.getElementById('srchIn').value.toLowerCase();renderGrid(q?prods.filter(p=>(p.name||'').toLowerCase().includes(q)||(p.desc||'').toLowerCase().includes(q)):getCurProds());}
 function doSearchVal(q){renderGrid(q?prods.filter(p=>(p.name||'').toLowerCase().includes(q.toLowerCase())):getCurProds());}
 function doSort(){
@@ -814,19 +769,30 @@ function doSort(){
   renderGrid(l);
 }
 
-// ═══════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════
+// ═══ HELPERS ═══
 function fmt(n){const num=Math.round(Number(n));if(isNaN(num)||num<=0)return'PKR 0';return'PKR '+num.toLocaleString('en-US');}
 function fmtNum(n){return Math.round(n).toLocaleString('en-US');}
 function st(r){r=parseFloat(r)||4.5;let s='';for(let i=1;i<=5;i++)s+=i<=Math.floor(r)?'★':'☆';return s;}
 function isW(id){return wish.includes(id);}
-// Random "sold in last 5h" per product
-function sold5h(p){return Math.floor(3+Math.random()*28+((p.p1||0)/5000)*10);}
+function sold5h(p){return Math.floor(4+Math.random()*30+((p.p1||0)/5000)*12);}
+// Viewers per product: 30–100
+function getViewers(p){const seed=(p.id||1);return 30+((seed*17)%71);}
+// Random avatar color
+function avatarColor(n){return AVCOLORS[n.charCodeAt(0)%AVCOLORS.length];}
+// Get product reviews (fake but product-linked)
+function getProdReviews(p){
+  const base=[
+    {n:'Ayesha',c:'Lahore',r:5,t:`"Masha Allah! ${p.name} bilkul perfect hai. Quality bohot achi hai, COD pe mangaya tha aur satisfied hoon 100%!"`},
+    {n:'Bilal',c:'Karachi',r:5,t:`"${p.name} ekdum original aaya. Packaging bhi achi thi. NestKart se phir order karunga!"`},
+    {n:'Fatima',c:'Multan',r:5,t:`"Bohot achi quality hai! ${p.name} exactly waisa aaya jaise photo mein tha. Fast delivery bhi mili!"`},
+    {n:'Hassan',c:'Islamabad',r:5,t:`"Pehle darr tha lekin try kiya toh mind blown ho gaya. ${p.name} bohot achi hai. Highly recommended!"`},
+    {n:'Sana',c:'Faisalabad',r:4,t:`"Overall good product. ${p.name} ki quality theek hai. Price bhi reasonable hai. 4/5 doonga!"`},
+    {n:'Usman',c:'Rawalpindi',r:5,t:`"3rd order NestKart se. ${p.name} perfect condition mein aya. Trust worthy store hai ye!"`},
+  ];
+  return base.slice(0,4);
+}
 
-// ═══════════════════════════════════════
-// 5H STATS BAR
-// ═══════════════════════════════════════
+// ═══ STATS BAR ═══
 function renderStatsBar(){
   const el=document.getElementById('statsBar');if(!el)return;
   el.innerHTML=SALES5H.map(s=>`
@@ -837,46 +803,44 @@ function renderStatsBar(){
     </div>`).join('');
 }
 renderStatsBar();
-
-// Live update stats every 30s
 setInterval(()=>{
-  SALES5H.forEach(s=>{s.sold+=Math.floor(Math.random()*3);s.rev+=Math.floor(Math.random()*8000);});
+  SALES5H.forEach(s=>{s.sold+=Math.floor(Math.random()*3);s.rev+=Math.floor(Math.random()*9000);});
   renderStatsBar();
-  // Also update hero sold count
-  const stdEl=document.getElementById('soldToday');
-  if(stdEl)stdEl.textContent=parseInt(stdEl.textContent)+(Math.floor(Math.random()*3));
-},30000);
+  const se=document.getElementById('soldToday');
+  if(se)se.textContent=parseInt(se.textContent||'0')+(Math.floor(Math.random()*3));
+},28000);
 
-// ═══════════════════════════════════════
-// PRODUCT GRID
-// ═══════════════════════════════════════
+// ═══ PRODUCT GRID ═══
 function renderGrid(list){
   const g=document.getElementById('pgrid');if(!g)return;
   const ce=document.getElementById('pcnt');if(ce)ce.textContent=list.length+' Products';
   const fb=document.getElementById('fbtns');
   if(fb){
     const bs=[...new Set(getCurProds().map(p=>p.badge).filter(Boolean))];
-    fb.innerHTML=`<button style="background:var(--purple);color:#fff;border:none;padding:6px 16px;font-size:11px;font-weight:700;border-radius:6px;cursor:pointer;letter-spacing:.5px;" onclick="renderGrid(getCurProds())">All</button>`+
-      bs.map(b=>`<button style="background:rgba(255,255,255,.04);color:var(--muted);border:1px solid var(--border);padding:6px 14px;font-size:11px;font-weight:600;border-radius:6px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--purple3)';this.style.color='#fff'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'" onclick="renderGrid(getCurProds().filter(p=>p.badge==='${b}'))">${b}</button>`).join('');
+    fb.innerHTML=`<button style="background:var(--purple);color:#fff;border:none;padding:6px 14px;font-size:11px;font-weight:800;border-radius:8px;cursor:pointer;" onclick="renderGrid(getCurProds())">All</button>`+
+      bs.map(b=>`<button style="background:rgba(255,255,255,.04);color:var(--muted);border:1px solid var(--border);padding:6px 12px;font-size:11px;font-weight:700;border-radius:8px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--pink)';this.style.color='#fff'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'" onclick="renderGrid(getCurProds().filter(p=>p.badge==='${b}'))">${b}</button>`).join('');
   }
   if(!list.length){
-    g.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:100px 20px;color:var(--dim);"><div style="font-size:64px;margin-bottom:16px;opacity:.3;">🔍</div><p style="font-size:14px;letter-spacing:1px;">No products found</p></div>`;
+    g.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--dim);"><div style="font-size:60px;margin-bottom:14px;opacity:.3;">🔍</div><p>No products found</p></div>`;
     return;
   }
   g.innerHTML=list.map(p=>{
-    const disc=p.op?Math.round((1-p.p1/p.op)*100):0;
-    const rc=p.badge&&p.badge.includes('New')?'nb':p.badge&&p.badge.includes('Hot')?'hb':p.badge&&p.badge.includes('Premium')?'pb':p.badge&&p.badge.includes('Best')?'eb':'hb';
-    const sp=Math.floor(25+Math.random()*65);
-    const vw=Math.floor(3+Math.random()*22);
+    const disc=getDisc(p);
+    const calcOld=Math.round(p.p1/(1-disc/100));
+    const sp=Math.floor(25+((p.id||1)*13)%60);
+    const vw=getViewers(p);
     const s5=sold5h(p);
+    const badgeClass=p.badge&&p.badge.toLowerCase().includes('new')?'new-b':p.badge&&p.badge.toLowerCase().includes('hot')?'hot-b':p.badge&&p.badge.toLowerCase().includes('prem')?'prem-b':'best-b';
+    // Time urgency: random remaining count
+    const leftCount=Math.floor(2+Math.random()*8);
     return`<div class="pcard" onmousemove="c3d(event,this)" onmouseleave="rc3d(this)">
-      <div class="pcard-shine"></div>
-      ${p.badge?`<div class="pribb ${rc}">${p.badge}</div>`:''}
+      <div class="disc-sticker"><div class="disc-sticker-inner">${disc}%<span>OFF</span></div></div>
+      ${p.badge?`<div class="badge-ribb ${badgeClass}">${p.badge}</div>`:''}
       <div class="pimg-wrap" onclick="openDetail(${p.id})">
         ${p.images&&p.images[0]?`<img src="${p.images[0]}" loading="lazy" alt="${p.name}">`:`<div class="peph">${EM[p.cat]||'📦'}</div>`}
         <button class="pwish ${isW(p.id)?'on':''}" onclick="event.stopPropagation();tWish(${p.id})">${isW(p.id)?'♥':'♡'}</button>
-        <div class="pvw"><span class="vd"></span>${vw} viewing</div>
-        <div class="psold">🔥 ${s5} sold · 5h</div>
+        <div class="pviewers"><span class="vd"></span>${vw} viewing</div>
+        <div class="psold-badge">🔥 ${s5} sold · 5h</div>
         <button class="qadd" onclick="event.stopPropagation();qAdd(${p.id})">+ Quick Add to Cart</button>
       </div>
       <div class="pbody" onclick="openDetail(${p.id})">
@@ -886,34 +850,28 @@ function renderGrid(list){
         <div class="prevs">(${(p.rev||0).toLocaleString()} verified reviews)</div>
         <div class="pprices">
           <span class="pp">${fmt(p.p1)}</span>
-          ${p.op?`<span class="pold">${fmt(p.op)}</span>`:''} 
-          ${disc>0?`<span class="poff">-${disc}%</span>`:''}
+          <span class="pold">${fmt(calcOld)}</span>
+          <span class="poff">-${disc}%</span>
         </div>
-        ${p.sizes&&p.sizes.length?`<div class="psizes2">${p.sizes.slice(0,5).map(s=>`<span class="sz2">${s}</span>`).join('')}</div>`:''}
-        <div class="pstock"><div class="sbar"><div class="sbarin" style="width:${sp}%"></div></div><span class="stxt">${sp<30?'⚠ Low Stock':'In Stock'}</span></div>
+        <div class="urgency-row">
+          <span class="urg-badge urg-fire">🔥 ${leftCount} left only!</span>
+          <span class="urg-badge urg-clock">⏰ Offer ends soon</span>
+        </div>
+        <div class="pstock" style="margin-top:8px;"><div class="sbar"><div class="sbarin ${sp<35?'low':'ok'}" style="width:${sp}%"></div></div><span class="stxt">${sp<35?'⚠ Low Stock':'In Stock'}</span></div>
       </div>
     </div>`;
   }).join('');
 }
-
-// 3D tilt
-function c3d(e,el){
-  const r=el.getBoundingClientRect();
-  const x=(e.clientX-r.left)/r.width-.5;
-  const y=(e.clientY-r.top)/r.height-.5;
-  el.style.transform=`perspective(700px) rotateY(${x*14}deg) rotateX(${-y*10}deg) translateY(-12px) scale(1.02)`;
-}
+function c3d(e,el){const r=el.getBoundingClientRect();const x=(e.clientX-r.left)/r.width-.5;const y=(e.clientY-r.top)/r.height-.5;el.style.transform=`perspective(700px) rotateY(${x*13}deg) rotateX(${-y*9}deg) translateY(-10px) scale(1.02)`;}
 function rc3d(el){el.style.transform='';}
-function qAdd(id){const p=prods.find(x=>x.id===id);if(!p)return;addToCart(p,1,p.p1,'');showToast('✓ Added to cart!','ok');}
+function qAdd(id){const p=prods.find(x=>x.id===id);if(!p)return;addToCart(p,1,p.p1,'');showToast('✅ Added to cart!','ok');}
 
-// ═══════════════════════════════════════
-// WISHLIST
-// ═══════════════════════════════════════
+// ═══ WISHLIST ═══
 function tWish(id){
   const i=wish.indexOf(id);
   if(i===-1){wish.push(id);showToast('♥ Saved to wishlist!','info');}
   else{wish.splice(i,1);showToast('Removed from wishlist','');}
-  localStorage.setItem('nk6_wish',JSON.stringify(wish));updWB();renderGrid(getCurProds());
+  localStorage.setItem('nk7_wish',JSON.stringify(wish));updWB();renderGrid(getCurProds());
 }
 function updWB(){
   const n=wish.length;
@@ -924,15 +882,15 @@ function openWish(){
   const wp=prods.filter(p=>wish.includes(p.id));
   if(!wp.length){wc.innerHTML='<div style="text-align:center;padding:40px;color:var(--dim);"><div style="font-size:48px;margin-bottom:12px;">♡</div><p>Your wishlist is empty</p></div>';}
   else{
-    wc.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;">`+
-      wp.map(p=>`<div style="background:var(--bg3);border-radius:11px;overflow:hidden;cursor:pointer;border:1px solid var(--border);transition:all .2s;" onclick="closeWish();openDetail(${p.id})" onmouseover="this.style.borderColor='var(--purple3)'" onmouseout="this.style.borderColor='var(--border)'">
-        <div style="height:120px;overflow:hidden;background:var(--card2);display:flex;align-items:center;justify-content:center;">
-          ${p.images&&p.images[0]?`<img src="${p.images[0]}" style="width:100%;height:100%;object-fit:cover;">`:`<span style="font-size:40px;">${EM[p.cat]||'📦'}</span>`}
+    wc.innerHTML=`<div class="wish-grid">`+
+      wp.map(p=>`<div style="background:var(--bg3);border-radius:14px;overflow:hidden;cursor:pointer;border:1px solid var(--border);transition:all .2s;" onclick="closeWish();openDetail(${p.id})" onmouseover="this.style.borderColor='var(--pink)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="height:120px;overflow:hidden;background:var(--card);display:flex;align-items:center;justify-content:center;">
+          ${p.images&&p.images[0]?`<img src="${p.images[0]}" style="width:100%;height:100%;object-fit:cover;">`:`<span style="font-size:38px;">${EM[p.cat]||'📦'}</span>`}
         </div>
         <div style="padding:10px;">
-          <div style="font-size:11px;font-weight:500;color:var(--white);margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${p.name}</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--purple3);">${fmt(p.p1)}</div>
-          <button onclick="event.stopPropagation();qAdd(${p.id})" style="width:100%;margin-top:6px;background:var(--purple);color:#fff;border:none;padding:6px;font-size:10px;font-weight:700;cursor:pointer;border-radius:5px;text-transform:uppercase;letter-spacing:.5px;">+ Cart</button>
+          <div style="font-size:11px;font-weight:700;color:var(--white);margin-bottom:3px;">${p.name}</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--pink);">${fmt(p.p1)}</div>
+          <button onclick="event.stopPropagation();qAdd(${p.id})" style="width:100%;margin-top:6px;background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;border:none;padding:6px;font-size:10px;font-weight:800;cursor:pointer;border-radius:7px;text-transform:uppercase;">+ Cart</button>
         </div>
       </div>`).join('')+'</div>';
   }
@@ -940,13 +898,10 @@ function openWish(){
 }
 function closeWish(){document.getElementById('wishOv').classList.remove('open');}
 
-// ═══════════════════════════════════════
-// DETAIL
-// ═══════════════════════════════════════
+// ═══ DETAIL PAGE ═══
 function openDetail(id){
   const p=prods.find(x=>x.id===id);if(!p)return;
-  cProd=p;cPack=1;cQty=1;cImg=0;
-  cSize=p.sizes&&p.sizes.length?p.sizes[0]:'';
+  cProd=p;cPack=1;cQty=1;cImg=0;cSize=p.sizes&&p.sizes.length?p.sizes[0]:'';
   document.getElementById('brdC').textContent=p.cat;
   document.getElementById('brdP').textContent=p.name;
   showPage('detailPage');renderDetail();updCC();updWB();
@@ -954,19 +909,22 @@ function openDetail(id){
 function renderDetail(){
   const p=cProd;if(!p)return;
   const imgs=p.images&&p.images.length?p.images:[];
-  const p1=p.p1||0,pks=[{n:1,price:p1},{n:2,price:p1*2},{n:3,price:p1*3}];
+  const disc=getDisc(p);
+  const p1=p.p1||0,pks=[{n:1,price:p1},{n:2,price:Math.round(p1*1.85)},{n:3,price:Math.round(p1*2.6)}];
   const ap=pks.find(x=>x.n===cPack)||pks[0];
-  const op=p.op||Math.round(p1*1.35),disc=Math.round((1-p1/op)*100);
+  const calcOld=Math.round(p1/(1-disc/100));
   const hasSz=p.sizes&&p.sizes.length>0;
   const rel=prods.filter(x=>x.id!==p.id&&x.cat===p.cat).slice(0,6);
-  const vw=Math.floor(8+Math.random()*28);
+  const vw=getViewers(p);
   const s5=sold5h(p);
+  const pRevs=getProdReviews(p);
 
   document.getElementById('dWrap').innerHTML=`
 <div class="dlayout">
   <div>
     <div class="dmai" id="dmi">
-      ${imgs[cImg]?`<img src="${imgs[cImg]}" alt="${p.name}">`:`<div style="font-size:100px;opacity:.3;">${EM[p.cat]||'📦'}</div>`}
+      <div class="disc-big">${disc}%<span class="offs">OFF</span></div>
+      ${imgs[cImg]?`<img src="${imgs[cImg]}" alt="${p.name}">`:`<div style="font-size:90px;opacity:.25;">${EM[p.cat]||'📦'}</div>`}
     </div>
     ${imgs.length>1?`<div class="dthumbs">${imgs.map((img,i)=>`<div class="dthumb ${i===cImg?'on':''}" onclick="swImg(${i})"><img src="${img}"></div>`).join('')}</div>`:''}
   </div>
@@ -978,18 +936,19 @@ function renderDetail(){
       <span class="drc">${(p.rev||0).toLocaleString()} reviews</span>
       <span class="vbdg">✓ Verified Seller</span>
     </div>
-    <div class="dsold5h">
-      <span style="font-size:20px;">🔥</span>
-      <div><div class="dsold5h-val">${s5} PIECES</div><div class="dsold5h-lbl">sold in the last 5 hours</div></div>
-      <span style="font-size:18px;margin-left:auto;">⚡</span>
+    <div class="d-live-viewers">
+      <span style="font-size:18px;">👁️</span>
+      <div><div class="d-live-num" id="dLiveVw">${vw}</div><div class="d-live-lbl">people viewing this right now</div></div>
+      <div class="d-live-anim">🔥</div>
     </div>
     <div>
       <div class="dprice">${fmt(ap.price)}</div>
-      ${p.op?`<div class="doldp">MRP: ${fmt(op*cPack)}</div><div class="dsave">🏷 You Save ${fmt(op*cPack-ap.price)} (${disc}% OFF)</div>`:''}
+      <div class="doldp">MRP: ${fmt(Math.round(calcOld*cPack*(cPack===1?1:cPack===2?1.85:2.6)/cPack))}</div>
+      <div class="dsave">🏷️ ${disc}% OFF — Save ${fmt(Math.round(calcOld*cPack*(cPack===1?1:cPack===2?1.85:2.6)/cPack)-ap.price)}</div>
     </div>
-    ${hasSz?`<div class="olbl">Select Size — <strong style="color:var(--purple3);">${cSize}</strong></div><div class="szopts">${p.sizes.map(s=>`<div class="szopt ${s===cSize?'on':''}" onclick="selSz('${s}')">${s}</div>`).join('')}</div>`:''}
+    ${hasSz?`<div class="olbl">Select Size — <strong style="color:var(--pink);">${cSize}</strong></div><div class="szopts">${p.sizes.map(s=>`<div class="szopt ${s===cSize?'on':''}" onclick="selSz('${s}')">${s}</div>`).join('')}</div>`:''}
     <div class="olbl">Pack Size</div>
-    <div class="pkopts">${pks.map(pk=>`<div class="pkopt ${pk.n===cPack?'on':''}" onclick="selPk(${pk.n})"><div class="pklbl">Pack of ${pk.n}</div><div class="pkp">${fmt(pk.price)}</div>${pk.n>1?`<div class="pksv">Best Value</div>`:''}</div>`).join('')}</div>
+    <div class="pkopts">${pks.map(pk=>`<div class="pkopt ${pk.n===cPack?'on':''}" onclick="selPk(${pk.n})"><div class="pklbl">Pack of ${pk.n}</div><div class="pkp">${fmt(pk.price)}</div>${pk.n>1?`<div class="pksv">Save More!</div>`:''}</div>`).join('')}</div>
     <div class="olbl">Quantity</div>
     <div class="qrow">
       <button class="qb" onclick="aQty(-1)">−</button>
@@ -1003,9 +962,8 @@ function renderDetail(){
       <p>🔄 7 Day Easy Return & Exchange</p>
       <p>⭐ 100% Authentic — Quality Guaranteed</p>
     </div>
-    <button class="dbuy" onclick="openOrder(${p.id},${cPack},${ap.price})"><span>🛒 Buy Now — ${fmt(ap.price*cQty)} Cash on Delivery</span></button>
-    <button class="dcart" onclick="addToCart(cProd,cPack,${ap.price},cSize);showToast('✓ Added to cart!','ok')">+ Add to Cart</button>
-    <div class="dvlive"><span class="vd2"></span><strong>${vw} people</strong>&nbsp;are viewing this right now</div>
+    <button class="dbuy" onclick="openOrder(${p.id},${cPack},${ap.price})">🛒 Buy Now — ${fmt(ap.price*cQty)} Cash on Delivery</button>
+    <button class="dcart" onclick="addToCart(cProd,cPack,${ap.price},cSize);showToast('✅ Added to cart!','ok')">+ Add to Cart</button>
     <div class="dtrust">
       <span class="dtch">✅ Genuine Product</span> &nbsp;·&nbsp;
       <span class="dtch">🔒 Secure Order</span> &nbsp;·&nbsp;
@@ -1018,46 +976,68 @@ ${p.desc||(p.descImgs&&p.descImgs.length)?`
 <div class="descbox">
   <div class="desbt">Product Description</div>
   <div class="desct">${(p.desc||'').replace(/\n/g,'<br>')}</div>
-  ${p.descImgs&&p.descImgs.length?`<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;">${p.descImgs.map(img=>`<img src="${img}" style="width:160px;height:160px;object-fit:cover;border-radius:9px;border:1px solid var(--border);">`).join('')}</div>`:''}
+  ${p.descImgs&&p.descImgs.length?`<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;">${p.descImgs.map(img=>`<img src="${img}" style="width:150px;height:150px;object-fit:cover;border-radius:10px;border:1px solid var(--border);">`).join('')}</div>`:''}
 </div>`:''}
-${rel.length?`
-<div style="margin-top:50px;">
-  <div class="sec-head" style="text-align:left;margin-bottom:20px;">
-    <div class="sec-eye">You May Also Like</div>
-    <h3 class="sec-t" style="font-size:24px;">Related <em>Products</em></h3>
+<div class="drev-section">
+  <div class="sec-eye">Customer Reviews</div>
+  <h3 class="sec-t" style="font-size:22px;margin-bottom:14px;">What Buyers <em>Say</em> About This</h3>
+  <div class="drev-grid">
+    ${pRevs.map(rv=>`<div class="drev-card">
+      <div class="drev-top"><div class="drav" style="background:${avatarColor(rv.n)}">${rv.n[0]}</div><div><div class="drnm">${rv.n}</div><div class="drct">📍 ${rv.c}</div></div></div>
+      <div class="drst">${'★'.repeat(rv.r)}${'☆'.repeat(5-rv.r)}</div>
+      <div class="drtxt">${rv.t}</div>
+      <div class="drverified">✅ Verified Purchase</div>
+    </div>`).join('')}
   </div>
+</div>
+${rel.length?`
+<div style="margin-top:44px;">
+  <div class="sec-eye">You May Also Like</div>
+  <h3 class="sec-t" style="font-size:22px;margin-bottom:14px;">Related <em>Products</em></h3>
   <div class="relgrid">
     ${rel.map(r=>`<div class="relcrd" onclick="openDetail(${r.id})">
-      <div class="relimg">${r.images&&r.images[0]?`<img src="${r.images[0]}">`:`<span style="font-size:40px;">${EM[r.cat]||'📦'}</span>`}</div>
+      <div class="relimg">${r.images&&r.images[0]?`<img src="${r.images[0]}">`:`<span style="font-size:36px;">${EM[r.cat]||'📦'}</span>`}</div>
       <div class="reli"><div class="reln">${r.name}</div><div class="relp">${fmt(r.p1)}</div></div>
     </div>`).join('')}
   </div>
 </div>`:''}`;
+
+  // Live viewer update on detail page
+  startDetailViewerUpdate();
 }
-function swImg(i){cImg=i;const m=document.getElementById('dmi');if(m&&cProd&&cProd.images[i])m.innerHTML=`<img src="${cProd.images[i]}" alt="${cProd.name}">`;document.querySelectorAll('.dthumb').forEach((t,idx)=>t.classList.toggle('on',idx===i));}
+let dvTimer=null;
+function startDetailViewerUpdate(){
+  if(dvTimer)clearInterval(dvTimer);
+  dvTimer=setInterval(()=>{
+    const el=document.getElementById('dLiveVw');
+    if(!el){clearInterval(dvTimer);return;}
+    const cur=parseInt(el.textContent||'30');
+    const next=Math.max(30,Math.min(100,cur+(Math.random()<.6?1:-1)*Math.floor(Math.random()*4+1)));
+    el.textContent=next;
+  },3500);
+}
+function swImg(i){cImg=i;const m=document.getElementById('dmi');if(m&&cProd&&cProd.images[i])m.innerHTML=`<div class="disc-big">${getDisc(cProd)}%<span class="offs">OFF</span></div><img src="${cProd.images[i]}" alt="${cProd.name}">`;document.querySelectorAll('.dthumb').forEach((t,idx)=>t.classList.toggle('on',idx===i));}
 function selPk(n){cPack=n;renderDetail();}
 function selSz(s){cSize=s;renderDetail();}
 function aQty(d){cQty=Math.max(1,cQty+d);const el=document.getElementById('qd');if(el)el.textContent=cQty;}
 
-// ═══════════════════════════════════════
-// ORDER
-// ═══════════════════════════════════════
+// ═══ ORDER ═══
 function openOrder(pid,pack,price){
   const p=prods.find(x=>x.id===pid);if(!p)return;
   const total=price*cQty,si=cSize?` (${cSize})`:'';
   document.getElementById('orderBody').innerHTML=`
-    ${pts2>0?`<div class="ptn">🎁 You have <strong style="color:var(--gold2);">${pts2} NestPoints</strong> — You'll earn more!</div>`:''}
+    ${pts2>0?`<div class="ptn">🎁 You have <strong style="color:var(--gold);">${pts2} NestPoints</strong> — Keep earning!</div>`:''}
     <div class="osumbox">
       <h4>Order Summary</h4>
       <div class="srow"><span>${p.name}${si}</span></div>
       <div class="srow"><span>Pack of ${pack} × ${cQty}</span><span>${fmt(total)}</span></div>
-      <div class="srow"><span>Delivery</span><span style="color:var(--gold2);">${total>=3000?'FREE 🎉':'PKR 200'}</span></div>
-      <div class="srow tot"><span>Total (COD)</span><span style="color:var(--purple3);">${fmt(total+(total>=3000?0:200))}</span></div>
+      <div class="srow"><span>Delivery</span><span style="color:${total>=3000?'var(--emerald2)':'var(--gold);'}">${total>=3000?'FREE 🎉':'PKR 200'}</span></div>
+      <div class="srow tot"><span>Total (COD)</span><span style="color:var(--pink);">${fmt(total+(total>=3000?0:200))}</span></div>
     </div>
-    <div class="fg"><label>Full Name *</label><input type="text" id="on" placeholder="Muhammad Ali" value="${curUser?curUser.displayName:''}"></div>
+    <div class="fg"><label>Full Name *</label><input type="text" id="on" placeholder="Muhammad Ali"></div>
     <div class="fg"><label>Phone Number *</label><input type="tel" id="oph" placeholder="03001234567"></div>
     <div class="fg"><label>City *</label><select id="oci"><option value="">-- Select City --</option>${CITIES.map(c=>`<option>${c}</option>`).join('')}</select></div>
-    <div class="fg"><label>Full Address *</label><textarea id="oad" placeholder="House No., Street, Mohalla, Area..."></textarea></div>
+    <div class="fg"><label>Full Address *</label><textarea id="oad" placeholder="House No., Street, Area..."></textarea></div>
     <div class="fg"><label>Note (Optional)</label><input type="text" id="ont" placeholder="Special instructions..."></div>
     <input type="hidden" id="opid" value="${pid}"><input type="hidden" id="opk" value="${pack}"><input type="hidden" id="opr" value="${price}"><input type="hidden" id="oqt" value="${cQty}"><input type="hidden" id="osz" value="${cSize}">
     <button class="pbtn2" onclick="placeOrder()">✅ Confirm Order — ${fmt(total)} COD</button>`;
@@ -1065,48 +1045,44 @@ function openOrder(pid,pack,price){
 }
 async function placeOrder(){
   const name=document.getElementById('on').value.trim(),phone=document.getElementById('oph').value.trim(),city=document.getElementById('oci').value,addr=document.getElementById('oad').value.trim();
-  if(!name||!phone||!city||!addr){showToast('Please fill all required fields','err');return;}
+  if(!name||!phone||!city||!addr){showToast('Please fill all required fields!','err');return;}
   const pid=parseInt(document.getElementById('opid').value),pack=parseInt(document.getElementById('opk').value);
   const price=parseInt(document.getElementById('opr').value),qty=parseInt(document.getElementById('oqt').value)||1,size=document.getElementById('osz').value;
   const p=prods.find(x=>x.id===pid);
-  const earned=Math.floor(price*qty/100)*5;pts2+=earned;localStorage.setItem('nk6_pts',pts2);
+  const earned=Math.floor(price*qty/100)*5;pts2+=earned;localStorage.setItem('nk7_pts',pts2);
   const lel=document.getElementById('lpts');if(lel)lel.textContent=pts2;
-  const order={id:Date.now(),pid,pname:p?p.name:'',pack,price:price*qty,size,name,phone,city,addr,qty,note:document.getElementById('ont').value,date:new Date().toLocaleDateString('en-PK',{year:'numeric',month:'short',day:'numeric'}),status:'Pending',userId:curUser?curUser.uid:null};
+  const order={id:Date.now(),pid,pname:p?p.name:'',pack,price:price*qty,size,name,phone,city,addr,qty,note:document.getElementById('ont').value,date:new Date().toLocaleDateString('en-PK',{year:'numeric',month:'short',day:'numeric'}),status:'Pending',userId:null};
   try{await window.fsAdd(window.fsCol(window.db,'orders'),order);}catch(e){}
-  // Update 5h sales
-  const catKey=p?p.cat:'Other';
-  const si=SALES5H.find(s=>s.cat.includes(catKey)||s.cat==='ALL ITEMS');
+  const si=SALES5H.find(s=>s.cat.includes(p?p.cat:''));
   if(si){si.sold+=qty;si.rev+=price*qty;}
   SALES5H[SALES5H.length-1].sold+=qty;SALES5H[SALES5H.length-1].rev+=price*qty;
   renderStatsBar();
   document.getElementById('orderBody').innerHTML=`
     <div class="succ">
       <div class="sicon">🎉</div>
-      <div class="st2">Order Placed Successfully!</div>
-      <p class="ssub">Thank you <strong>${name}</strong>! Our team will call you at <strong style="color:var(--purple3);">${phone}</strong> to confirm your order.</p>
+      <div class="st2">Order Placed! Shukriya!</div>
+      <p class="ssub">Thank you <strong>${name}</strong>! Hamari team aapko <strong style="color:var(--pink);">${phone}</strong> pe call karegi to confirm karne ke liye.</p>
       <div class="sdet">
         <div class="sdr"><span>Product</span><span>${p?p.name:''}</span></div>
-        ${size?`<div class="sdr"><span>Size</span><span style="color:var(--purple3);">${size}</span></div>`:''}
-        <div class="sdr"><span>Amount</span><span style="color:var(--purple3);font-weight:700;">${fmt(price*qty)}</span></div>
-        <div class="sdr"><span>Payment</span><span style="color:var(--emerald3);">Cash on Delivery</span></div>
-        <div class="sdr"><span>Delivery</span><span>3–6 Working Days</span></div>
+        ${size?`<div class="sdr"><span>Size</span><span style="color:var(--pink);">${size}</span></div>`:''}
+        <div class="sdr"><span>Amount</span><span style="color:var(--pink);font-weight:800;">${fmt(price*qty)}</span></div>
+        <div class="sdr"><span>Payment</span><span style="color:var(--emerald2);">Cash on Delivery ✅</span></div>
+        <div class="sdr"><span>Delivery</span><span>3–6 Working Days 🚚</span></div>
       </div>
-      ${earned>0?`<div class="ptn">🎁 You earned <strong style="color:var(--gold2);">${earned} NestPoints</strong>! Total: ${pts2} pts</div>`:''}
-      <button onclick="closeOrder();showStore()" class="pbtn2">Continue Shopping 🛍</button>
+      ${earned>0?`<div class="ptn">🎁 Aapne <strong style="color:var(--gold);">${earned} NestPoints</strong> kamaye! Total: ${pts2} pts</div>`:''}
+      <button onclick="closeOrder();showStore()" class="pbtn2">🛍️ Continue Shopping</button>
     </div>`;
 }
 function closeOrder(){document.getElementById('orderOv').classList.remove('open');}
 
-// ═══════════════════════════════════════
-// CART
-// ═══════════════════════════════════════
+// ═══ CART ═══
 function addToCart(p,pack,price,size){
   if(!p)return;
   const k=`${p.id}_${pack}_${size}`;
   const ex=cart.find(x=>x.key===k);
   if(ex)ex.qty++;
   else cart.push({key:k,id:p.id,pack,price,name:p.name,img:p.images&&p.images[0]?p.images[0]:'',cat:p.cat,size,qty:1});
-  localStorage.setItem('nk6_cart',JSON.stringify(cart));updCC();
+  localStorage.setItem('nk7_cart',JSON.stringify(cart));updCC();
 }
 function updCC(){
   const n=cart.reduce((a,x)=>a+x.qty,0);
@@ -1117,13 +1093,13 @@ function closeCart(){document.getElementById('cov').classList.remove('open');doc
 function rCart(){
   const ci=document.getElementById('citems'),cf=document.getElementById('cft');
   if(!cart.length){
-    ci.innerHTML=`<div class="emc"><div class="emci">🛒</div><p style="font-size:13px;letter-spacing:.5px;">Your cart is empty</p><button onclick="closeCart()" style="margin-top:16px;background:var(--purple);color:#fff;border:none;padding:10px 24px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">Browse Products</button></div>`;
+    ci.innerHTML=`<div class="emc"><div class="emci">🛒</div><p>Cart empty hai! Shopping karo!</p><button onclick="closeCart()" style="margin-top:14px;background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;border:none;padding:10px 24px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;">Browse Products</button></div>`;
     cf.innerHTML='';return;
   }
   ci.innerHTML=cart.map(item=>`<div class="ci">
     <div class="ciimg">${item.img?`<img src="${item.img}">`:(EM[item.cat]||'📦')}</div>
     <div class="cinfo">
-      <div class="cin">${item.name} (Pack of ${item.pack})</div>
+      <div class="cin">${item.name} (x${item.pack})</div>
       ${item.size?`<div class="cisz">${item.size}</div>`:''}
       <div class="cip">${fmt(item.price)}</div>
       <div class="ciqr">
@@ -1137,30 +1113,26 @@ function rCart(){
   const tot=cart.reduce((a,x)=>a+x.price*x.qty,0);
   cf.innerHTML=`<div class="ctots">
     <div class="cr"><span>Subtotal</span><span>${fmt(tot)}</span></div>
-    <div class="cr"><span>Delivery</span><span style="color:${tot>=3000?'var(--emerald3)':'var(--gold2);'}">${tot>=3000?'FREE 🎉':'PKR 200'}</span></div>
-    <div class="cr grand"><span>Total (COD)</span><span style="color:var(--purple3);">${fmt(tot+(tot>=3000?0:200))}</span></div>
+    <div class="cr"><span>Delivery</span><span style="color:${tot>=3000?'var(--emerald2)':'var(--gold);'}">${tot>=3000?'FREE 🎉':'PKR 200'}</span></div>
+    <div class="cr grand"><span>Total (COD)</span><span style="color:var(--pink);">${fmt(tot+(tot>=3000?0:200))}</span></div>
   </div>
-  <button class="ckbtn" onclick="cartCO()">🛒 Checkout — Cash on Delivery</button>
-  <p style="text-align:center;font-size:10px;color:var(--dim);margin-top:8px;letter-spacing:.5px;">🔒 Secure · ✅ COD · 🚚 Fast Delivery</p>`;
+  <button class="ckbtn" onclick="cartCO()">✅ Checkout — Cash on Delivery</button>
+  <p style="text-align:center;font-size:10px;color:var(--dim);margin-top:8px;">🔒 Secure · ✅ COD · 🚚 Fast Delivery</p>`;
 }
-function chgQty(k,d){const i=cart.find(x=>x.key===k);if(!i)return;i.qty+=d;if(i.qty<=0)cart=cart.filter(x=>x.key!==k);localStorage.setItem('nk6_cart',JSON.stringify(cart));updCC();rCart();}
-function rmCart(k){cart=cart.filter(x=>x.key!==k);localStorage.setItem('nk6_cart',JSON.stringify(cart));updCC();rCart();}
+function chgQty(k,d){const i=cart.find(x=>x.key===k);if(!i)return;i.qty+=d;if(i.qty<=0)cart=cart.filter(x=>x.key!==k);localStorage.setItem('nk7_cart',JSON.stringify(cart));updCC();rCart();}
+function rmCart(k){cart=cart.filter(x=>x.key!==k);localStorage.setItem('nk7_cart',JSON.stringify(cart));updCC();rCart();}
 function cartCO(){if(!cart.length)return;closeCart();const f=cart[0];cProd=prods.find(x=>x.id===f.id);cSize=f.size||'';cQty=f.qty||1;openOrder(f.id,f.pack,f.price);}
 
-// ═══════════════════════════════════════
-// TOAST
-// ═══════════════════════════════════════
+// ═══ TOAST ═══
 function showToast(msg,type=''){
   const t=document.getElementById('toast');
   t.textContent=msg;t.className='toast show '+(type||'');
   setTimeout(()=>t.className='toast',3500);
 }
 
-// ═══════════════════════════════════════
-// FLASH TIMER
-// ═══════════════════════════════════════
+// ═══ FLASH TIMER ═══
 (function(){
-  let h=11,m=47,s=32;
+  let h=8,m=34,s=17;
   setInterval(()=>{
     s--;if(s<0){s=59;m--;}if(m<0){m=59;h--;}if(h<0){h=23;m=59;s=59;}
     const pad=n=>String(n).padStart(2,'0');
@@ -1169,45 +1141,69 @@ function showToast(msg,type=''){
   },1000);
 })();
 
-// LIVE VISITOR
+// ═══ LIVE VISITOR COUNTER ═══
 (function(){
-  let v=247;
+  let v=2347;
+  const el=document.getElementById('liveV');
   setInterval(()=>{
-    v+=Math.random()<.55?Math.floor(Math.random()*4)+1:-Math.floor(Math.random()*2);
-    v=Math.max(180,Math.min(420,v));
-    const el=document.getElementById('liveV');if(el)el.textContent=v;
-  },3500);
+    v+=Math.random()<.6?Math.floor(Math.random()*6)+1:-Math.floor(Math.random()*3);
+    v=Math.max(2000,Math.min(3500,v));
+    if(el)el.textContent=v.toLocaleString();
+  },3000);
 })();
 
-// TICKER
+// ═══ TICKER ═══
 (function(){
   const el=document.getElementById('tickIn');if(!el)return;
   const d=[...TMSGS,...TMSGS];
   el.innerHTML=d.map(m=>`<div class="tki"><span class="tdk"></span><span class="tkn">${m}</span></div>`).join('');
 })();
 
-// PROOF CARDS
+// ═══ HOMEPAGE REVIEWS ═══
 (function(){
   const el=document.getElementById('prow');if(!el)return;
-  el.innerHTML=PROOFS.map(p=>`<div class="prcrd">
-    <div class="prhdr"><div class="prav">${p.i}</div><div><div class="prn">${p.n}</div><div class="prc">📍 ${p.c}</div></div></div>
+  el.innerHTML=REVIEWS_POOL.map(p=>`<div class="prcrd">
+    <div class="prhdr"><div class="prav" style="background:${avatarColor(p.n)}">${p.i}</div><div><div class="prn">${p.n}</div><div class="prc">📍 ${p.c}</div></div></div>
     <div class="prst">${'★'.repeat(p.r)}</div>
     <div class="prtxt">${p.t}</div>
+    <div class="pr-verified">✅ Verified Purchase</div>
     <div class="prti">${p.ti}</div>
   </div>`).join('');
 })();
 
-// LOYALTY PTS DISPLAY
+// ═══ LOYALTY POINTS ═══
 const lpel=document.getElementById('lpts');if(lpel)lpel.textContent=pts2;
+
+// ═══ POPUP ALERTS (fake purchase notifications) ═══
+(function(){
+  const pa=document.getElementById('popupAlert');
+  const paName=document.getElementById('paName');
+  const paMsg=document.getElementById('paMsg');
+  const paTime=document.getElementById('paTime');
+  const paIcon=document.getElementById('paIcon');
+  const emojis=['🛍️','🎁','✅','🔥','💜'];
+  const times=['just now','1 minute ago','2 minutes ago','3 minutes ago','5 minutes ago'];
+  let idx=0;
+  function showPopup(){
+    const name=POPUP_NAMES[Math.floor(Math.random()*POPUP_NAMES.length)];
+    const city=POPUP_CITIES[Math.floor(Math.random()*POPUP_CITIES.length)];
+    const msg=POPUP_MSGS[Math.floor(Math.random()*POPUP_MSGS.length)];
+    const em=emojis[Math.floor(Math.random()*emojis.length)];
+    const time=times[Math.floor(Math.random()*times.length)];
+    paIcon.textContent=em;
+    paName.textContent=name+' from '+city;
+    paMsg.textContent=msg;
+    paTime.textContent=time;
+    pa.classList.add('show');
+    setTimeout(()=>pa.classList.remove('show'),3500);
+    idx++;
+  }
+  setTimeout(showPopup,4000);
+  setInterval(showPopup,12000);
+})();
 
 // INIT
 buildCats();renderCatCards();renderGrid(prods);updCC();updWB();
-
-// Auto login popup after 9 seconds
-setTimeout(()=>{
-  if(!curUser&&!localStorage.getItem('nk6_skip'))openLP();
-},9000);
-document.querySelector('.skipbtn').addEventListener('click',()=>{localStorage.setItem('nk6_skip','1');closeLP();});
 </script>
 </body>
 </html>
