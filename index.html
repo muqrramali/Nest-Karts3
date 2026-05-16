@@ -1,1209 +1,1052 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NestKart — Pakistan's #1 Luxury Store</title>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
-  const cfg={apiKey:"AIzaSyAst9vKwKzN28DfKukaBFNvjDY66BJADn8",authDomain:"nestkart-2a2c2.firebaseapp.com",projectId:"nestkart-2a2c2",storageBucket:"nestkart-2a2c2.firebasestorage.app",messagingSenderId:"987346746569",appId:"1:987346746569:web:a08d29dfea81177253d118"};
-  const app=initializeApp(cfg);const db=getFirestore(app);
-  window.db=db;window.fsCol=collection;window.fsDocs=getDocs;window.fsAdd=addDoc;window.fsSnap=onSnapshot;
-  window.dispatchEvent(new Event('fbReady'));
-</script>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@400;500;600;700;800&family=Bebas+Neue&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box;}
-:root{
-  --bg:#0a0015;--bg2:#0d001a;--bg3:#110020;
-  --card:#16002a;--card2:#1a003200;
-  --purple:#8b5cf6;--purple2:#7c3aed;--purple3:#a78bfa;
-  --pink:#f472b6;--pink2:#ec4899;
-  --emerald:#10b981;--emerald2:#34d399;
-  --gold:#fbbf24;--gold2:#fcd34d;
-  --cyan:#22d3ee;--orange:#fb923c;
-  --white:#faf5ff;--muted:#c4b5fd;--dim:#7c6a9a;
-  --border:rgba(139,92,246,0.15);--border2:rgba(139,92,246,0.35);
-  --glow:rgba(139,92,246,0.4);
+import { useState, useEffect, useRef, useCallback } from "react";
+
+const PRODUCTS = [
+  {
+    id: 1, name: "AeroBlend Pro X9", category: "Kitchen", price: 12999, originalPrice: 18999,
+    rating: 4.8, reviews: 2341, badge: "BEST SELLER", sold: 8920,
+    emoji: "🫙",
+    colors: ["#00f5ff", "#7c3aed"],
+    description: "Ultra-sonic 1200W blending technology with AI-precision control. 9 speed modes, self-cleaning system, and titanium-coated blades that last a lifetime.",
+    features: ["1200W Motor", "9 Speed Modes", "Self-Cleaning", "Titanium Blades", "Smart Sensor"],
+    images: ["🫙", "⚡", "💎"],
+    reviews_data: [
+      { name: "Ahmed K.", city: "Lahore", rating: 5, text: "Absolutely insane quality! Makes smoothies in 10 seconds flat.", avatar: "AK" },
+      { name: "Sara M.", city: "Karachi", rating: 5, text: "Worth every rupee. Looks like it's from the future!", avatar: "SM" },
+      { name: "Bilal R.", city: "Islamabad", rating: 4, text: "1000% recommended to everyone in my family.", avatar: "BR" },
+    ]
+  },
+  {
+    id: 2, name: "CyberChop Elite", category: "Kitchen", price: 8499, originalPrice: 13500,
+    rating: 4.9, reviews: 1876, badge: "TRENDING", sold: 5670,
+    emoji: "🔪",
+    colors: ["#7c3aed", "#ec4899"],
+    description: "Professional 18-in-1 electric chopper with laser-sharp stainless blades. Chops, dices, minces and purees with zero effort.",
+    features: ["18-in-1 Functions", "Laser-Sharp Blades", "Stainless Steel", "Dishwasher Safe", "Whisper Quiet"],
+    images: ["🔪", "✨", "🌟"],
+    reviews_data: [
+      { name: "Fatima A.", city: "Faisalabad", rating: 5, text: "Fast delivery and amazing quality. My kitchen staple now!", avatar: "FA" },
+      { name: "Usman T.", city: "Multan", rating: 5, text: "Looks premium, works even better. WOW!", avatar: "UT" },
+      { name: "Zara H.", city: "Rawalpindi", rating: 5, text: "Worth every penny! Saves so much time.", avatar: "ZH" },
+    ]
+  },
+  {
+    id: 3, name: "QuantumPress 3000", category: "Kitchen", price: 15999, originalPrice: 24000,
+    rating: 4.7, reviews: 3102, badge: "HOT DEAL", sold: 12300,
+    emoji: "🫕",
+    colors: ["#00f5ff", "#06b6d4"],
+    description: "Smart pressure cooker with 40+ pre-set AI cooking programs. WiFi-connected, app-controlled, and equipped with quantum pressure regulation.",
+    features: ["40+ Programs", "WiFi Control", "AI Cooking", "10L Capacity", "Safety Lock"],
+    images: ["🫕", "📱", "⚡"],
+    reviews_data: [
+      { name: "Hassan N.", city: "Peshawar", rating: 5, text: "Game changer for cooking. Fast delivery too!", avatar: "HN" },
+      { name: "Amna B.", city: "Quetta", rating: 4, text: "Amazing product, highly recommend to all!", avatar: "AB" },
+      { name: "Kamran S.", city: "Sialkot", rating: 5, text: "COD made it so easy to order. Love it!", avatar: "KS" },
+    ]
+  },
+  {
+    id: 4, name: "NanoVac Ultra", category: "Home", price: 22999, originalPrice: 35000,
+    rating: 4.9, reviews: 4521, badge: "NEW ARRIVAL", sold: 3200,
+    emoji: "🌀",
+    colors: ["#ec4899", "#7c3aed"],
+    description: "Robotic AI vacuum with LiDAR mapping, auto-emptying base, and 180-minute battery. Cleans your entire home while you relax.",
+    features: ["LiDAR Mapping", "Auto-Empty", "180 Min Battery", "App Control", "HEPA Filter"],
+    images: ["🌀", "🤖", "✨"],
+    reviews_data: [
+      { name: "Sana Q.", city: "Lahore", rating: 5, text: "Incredible! My floors have never been this clean.", avatar: "SQ" },
+      { name: "Tariq M.", city: "Karachi", rating: 5, text: "Worth every rupee. Fast delivery on COD!", avatar: "TM" },
+      { name: "Nadia F.", city: "Islamabad", rating: 4, text: "Absolutely love this. Recommended to all friends!", avatar: "NF" },
+    ]
+  },
+  {
+    id: 5, name: "HyperCool 9X", category: "Electronics", price: 45999, originalPrice: 65000,
+    rating: 4.8, reviews: 1205, badge: "PREMIUM", sold: 1890,
+    emoji: "❄️",
+    colors: ["#00f5ff", "#3b82f6"],
+    description: "Portable smart air conditioner with plasma ionization, voice control, and 5G connectivity. Cools any room in 60 seconds flat.",
+    features: ["Plasma Ionization", "Voice Control", "5G Connected", "60-Second Cool", "Smart Scheduling"],
+    images: ["❄️", "📡", "💨"],
+    reviews_data: [
+      { name: "Ali Z.", city: "Multan", rating: 5, text: "Perfect for Pakistan summers. Absolute beast!", avatar: "AZ" },
+      { name: "Hina R.", city: "Hyderabad", rating: 5, text: "Worth every single rupee. Loving it!", avatar: "HR" },
+      { name: "Imran K.", city: "Gujranwala", rating: 4, text: "Fast delivery + great product = happy customer!", avatar: "IK" },
+    ]
+  },
+  {
+    id: 6, name: "LumiSkin Pro", category: "Beauty", price: 6999, originalPrice: 11000,
+    rating: 4.9, reviews: 8765, badge: "VIRAL", sold: 28900,
+    emoji: "💫",
+    colors: ["#ec4899", "#f97316"],
+    description: "Medical-grade LED therapy device with 7 light frequencies. Anti-aging, acne treatment, and skin rejuvenation in one luxurious device.",
+    features: ["7 LED Frequencies", "Medical Grade", "Anti-Aging", "Acne Treatment", "30-Min Timer"],
+    images: ["💫", "✨", "🌟"],
+    reviews_data: [
+      { name: "Maryam A.", city: "Lahore", rating: 5, text: "My skin has completely transformed in 2 weeks!", avatar: "MA" },
+      { name: "Zainab H.", city: "Karachi", rating: 5, text: "1000% recommended. Visible results in days!", avatar: "ZH" },
+      { name: "Rida T.", city: "Islamabad", rating: 5, text: "Worth every rupee. I bought 3 as gifts too!", avatar: "RT" },
+    ]
+  },
+  {
+    id: 7, name: "TurboSteam X", category: "Home", price: 9499, originalPrice: 14500,
+    rating: 4.7, reviews: 2890, badge: "FLASH SALE", sold: 7650,
+    emoji: "💨",
+    colors: ["#06b6d4", "#0284c7"],
+    description: "Garment steamer with 5-second heat-up, 2200W power, and anti-calcium technology. Makes every outfit look freshly dry-cleaned.",
+    features: ["5-Sec Heat-Up", "2200W Power", "Anti-Calcium", "1.5L Tank", "Vertical Steam"],
+    images: ["💨", "👔", "⚡"],
+    reviews_data: [
+      { name: "Farhan B.", city: "Faisalabad", rating: 5, text: "Absolutely amazing! Wrinkles disappear instantly.", avatar: "FB" },
+      { name: "Noor S.", city: "Peshawar", rating: 4, text: "Great quality and fast COD delivery!", avatar: "NS" },
+      { name: "Yasir M.", city: "Quetta", rating: 5, text: "Life-changing product. 100% recommend!", avatar: "YM" },
+    ]
+  },
+  {
+    id: 8, name: "SmartShef AI", category: "Kitchen", price: 19999, originalPrice: 29000,
+    rating: 4.8, reviews: 1654, badge: "AI POWERED", sold: 4320,
+    emoji: "🍳",
+    colors: ["#f97316", "#ec4899"],
+    description: "AI-powered cooking assistant with 500+ recipes, auto-temperature control, and real-time cooking guidance through connected app.",
+    features: ["500+ Recipes", "AI Guidance", "Auto Temp", "App Connected", "Voice Control"],
+    images: ["🍳", "🤖", "📱"],
+    reviews_data: [
+      { name: "Asad K.", city: "Lahore", rating: 5, text: "Makes me feel like a 5-star chef! Love it!", avatar: "AK" },
+      { name: "Rabia M.", city: "Karachi", rating: 5, text: "Unbelievable quality. Fast delivery too!", avatar: "RM" },
+      { name: "Adeel H.", city: "Rawalpindi", rating: 4, text: "Worth every rupee. My wife loves it!", avatar: "AH" },
+    ]
+  },
+];
+
+const CATEGORIES = ["All", "Kitchen", "Home", "Electronics", "Beauty", "Fitness", "Fashion"];
+
+const NAMES = ["Ali", "Sara", "Ahmed", "Fatima", "Bilal", "Zara", "Hassan", "Amna", "Usman", "Nadia", "Kamran", "Sana", "Tariq", "Hina", "Imran"];
+const CITIES = ["Islamabad", "Karachi", "Lahore", "Faisalabad", "Peshawar", "Multan", "Quetta", "Rawalpindi", "Sialkot", "Hyderabad"];
+
+function StarRating({ rating, size = 14 }) {
+  return (
+    <div style={{ display: "flex", gap: 2 }}>
+      {[1,2,3,4,5].map(s => (
+        <span key={s} style={{ fontSize: size, color: s <= Math.floor(rating) ? "#f59e0b" : s <= rating ? "#f59e0b" : "#374151" }}>★</span>
+      ))}
+    </div>
+  );
 }
-html{scroll-behavior:smooth;}
-body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--white);overflow-x:hidden;cursor:none;}
-input,select,textarea,button{font-family:'Nunito',sans-serif;}
 
-/* CURSOR */
-.cursor{position:fixed;width:14px;height:14px;background:var(--pink);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:width .2s,height .2s;mix-blend-mode:screen;}
-.cursor-ring{position:fixed;width:36px;height:36px;border:2px solid rgba(244,114,182,0.5);border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);transition:all .12s ease;}
-
-/* ANIMATED BACKGROUND */
-#bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
-.bg-orbs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
-.orb{position:absolute;border-radius:50%;filter:blur(80px);animation:orbFloat 12s ease-in-out infinite;}
-.orb1{width:500px;height:500px;background:radial-gradient(circle,rgba(139,92,246,0.25),transparent);top:-100px;left:-100px;animation-delay:0s;}
-.orb2{width:400px;height:400px;background:radial-gradient(circle,rgba(244,114,182,0.2),transparent);top:30%;right:-80px;animation-delay:-4s;}
-.orb3{width:350px;height:350px;background:radial-gradient(circle,rgba(34,211,238,0.15),transparent);bottom:10%;left:20%;animation-delay:-8s;}
-.orb4{width:300px;height:300px;background:radial-gradient(circle,rgba(251,191,36,0.12),transparent);bottom:-50px;right:20%;animation-delay:-6s;}
-@keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(30px,-40px) scale(1.05);}66%{transform:translate(-20px,20px) scale(0.95);}}
-
-/* SCROLLBAR */
-::-webkit-scrollbar{width:4px;}
-::-webkit-scrollbar-track{background:var(--bg);}
-::-webkit-scrollbar-thumb{background:linear-gradient(var(--purple),var(--pink));border-radius:2px;}
-
-.page{display:none!important;}.page.active{display:block!important;}
-
-/* ANNOUNCEMENT */
-.ann{background:linear-gradient(90deg,#7c3aed,#ec4899,#8b5cf6,#f472b6,#7c3aed);background-size:400% 100%;animation:annScroll 6s linear infinite;padding:10px;text-align:center;font-size:11px;letter-spacing:2px;color:#fff;font-weight:800;text-transform:uppercase;position:relative;z-index:200;}
-@keyframes annScroll{0%{background-position:0%}100%{background-position:100%}}
-.ann-txt{display:inline-flex;align-items:center;gap:16px;}
-
-/* NAV */
-.nav{position:sticky;top:0;z-index:600;background:rgba(10,0,21,0.95);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
-.nav-in{max-width:1440px;margin:0 auto;display:flex;align-items:center;padding:14px 24px;gap:16px;}
-.logo{cursor:pointer;flex-shrink:0;display:flex;align-items:center;gap:10px;}
-.logo-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--purple),var(--pink));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 4px 16px rgba(139,92,246,0.4);}
-.logo-text-wrap .logo-text{font-family:'Poppins',sans-serif;font-size:22px;font-weight:800;color:var(--white);letter-spacing:-0.5px;line-height:1;}
-.logo-text-wrap .logo-text span{color:var(--pink);}
-.logo-text-wrap .logo-sub{font-size:9px;letter-spacing:3px;color:var(--dim);text-transform:uppercase;}
-.srch{flex:1;max-width:460px;position:relative;}
-.srch input{width:100%;padding:11px 48px 11px 18px;background:rgba(139,92,246,0.08);border:1px solid var(--border2);border-radius:50px;font-size:13px;color:var(--white);outline:none;transition:all .3s;}
-.srch input:focus{border-color:var(--purple3);box-shadow:0 0 0 3px rgba(139,92,246,0.15);}
-.srch input::placeholder{color:var(--dim);}
-.srch-btn{position:absolute;right:4px;top:50%;transform:translateY(-50%);background:linear-gradient(135deg,var(--purple),var(--pink));border:none;width:34px;height:34px;border-radius:50%;cursor:pointer;color:#fff;font-size:15px;display:flex;align-items:center;justify-content:center;}
-.nav-right{display:flex;align-items:center;gap:8px;margin-left:auto;}
-.nav-icon-btn{position:relative;background:rgba(139,92,246,0.1);border:1px solid var(--border);width:40px;height:40px;border-radius:12px;cursor:pointer;color:var(--muted);font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .25s;}
-.nav-icon-btn:hover{background:rgba(139,92,246,0.2);border-color:var(--purple3);color:var(--white);}
-.badge-dot{position:absolute;top:-4px;right:-4px;background:var(--pink);color:#fff;border-radius:50%;width:17px;height:17px;font-size:9px;font-weight:900;display:none;align-items:center;justify-content:center;border:2px solid var(--bg);}
-.badge-dot.show{display:flex;}
-.cart-btn{display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;padding:10px 20px;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:800;transition:all .25s;position:relative;white-space:nowrap;}
-.cart-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(139,92,246,0.5);}
-.cart-btn .cc{background:rgba(0,0,0,0.25);border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;}
-
-/* CATEGORY NAV */
-.catnav{background:rgba(10,0,21,0.98);border-bottom:1px solid var(--border);position:sticky;top:65px;z-index:500;}
-.catnav-in{max-width:1440px;margin:0 auto;padding:0 24px;display:flex;gap:0;overflow-x:auto;}
-.catnav-in::-webkit-scrollbar{display:none;}
-.cpill{background:none;border:none;padding:12px 18px;font-size:12px;letter-spacing:.5px;font-weight:700;color:var(--dim);cursor:pointer;transition:all .2s;border-bottom:2px solid transparent;white-space:nowrap;}
-.cpill:hover,.cpill.on{color:var(--pink);border-bottom-color:var(--pink);}
-
-/* FLASH SALE */
-.flash{background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(244,114,182,0.15));border-bottom:1px solid rgba(244,114,182,0.2);padding:12px 24px;display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;}
-.flash-lbl{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;background:linear-gradient(135deg,var(--gold),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.ftimer{display:flex;gap:6px;align-items:center;}
-.fblock{background:rgba(255,255,255,0.07);border:1px solid rgba(244,114,182,0.3);padding:6px 12px;text-align:center;border-radius:10px;min-width:52px;}
-.fnum{font-family:'Bebas Neue',sans-serif;font-size:26px;display:block;color:#fff;line-height:1;}
-.flab{font-size:8px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;}
-.fsep{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--pink);animation:blink 1s infinite;}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
-
-/* STATS BAR */
-.stats-bar{background:rgba(13,0,26,0.9);border-bottom:1px solid var(--border);padding:0 24px;}
-.stats-in{max-width:1440px;margin:0 auto;display:flex;overflow-x:auto;}
-.stats-in::-webkit-scrollbar{display:none;}
-.stat-item{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 24px;border-right:1px solid var(--border);white-space:nowrap;min-width:130px;}
-.stat-item:last-child{border-right:none;}
-.stat-val{font-family:'Bebas Neue',sans-serif;font-size:24px;background:linear-gradient(135deg,var(--emerald2),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
-.stat-lbl{font-size:9px;letter-spacing:1px;color:var(--dim);text-transform:uppercase;margin-top:1px;}
-.stat-trend{font-size:9px;color:var(--emerald2);font-weight:700;margin-top:1px;}
-
-/* HERO */
-.hero{min-height:88vh;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:40px 20px;}
-.hero-content{position:relative;z-index:2;text-align:center;max-width:860px;}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(244,114,182,0.12);border:1px solid rgba(244,114,182,0.3);padding:7px 20px;border-radius:50px;font-size:11px;letter-spacing:1.5px;color:var(--pink);text-transform:uppercase;font-weight:800;margin-bottom:24px;animation:badgePulse 3s ease-in-out infinite;}
-@keyframes badgePulse{0%,100%{box-shadow:0 0 0 0 rgba(244,114,182,0.2)}50%{box-shadow:0 0 0 8px rgba(244,114,182,0)}}
-.live-dot{width:7px;height:7px;background:var(--emerald2);border-radius:50%;animation:livePulse 1.5s infinite;}
-@keyframes livePulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.6);opacity:.5}}
-.hero h1{font-family:'Poppins',sans-serif;font-size:clamp(36px,6vw,78px);font-weight:800;color:#fff;line-height:1.1;margin-bottom:16px;letter-spacing:-2px;}
-.hero h1 .grad{background:linear-gradient(135deg,var(--purple3),var(--pink),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.hero-sub{font-size:15px;color:var(--muted);margin-bottom:36px;line-height:1.7;font-weight:500;}
-.hero-stats{display:flex;justify-content:center;gap:0;margin-bottom:40px;border:1px solid var(--border2);border-radius:20px;overflow:hidden;background:rgba(139,92,246,0.06);max-width:580px;margin-left:auto;margin-right:auto;backdrop-filter:blur(16px);}
-.hstat{flex:1;padding:18px 12px;text-align:center;border-right:1px solid var(--border);}
-.hstat:last-child{border-right:none;}
-.hstat-n{font-family:'Bebas Neue',sans-serif;font-size:28px;color:#fff;line-height:1;}
-.hstat-l{font-size:9px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-top:2px;}
-.hcta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
-.btn-main{background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;padding:15px 40px;border:none;border-radius:50px;font-size:14px;font-weight:800;letter-spacing:.5px;cursor:pointer;transition:all .3s;box-shadow:0 6px 24px rgba(139,92,246,0.4);}
-.btn-main:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(139,92,246,0.6);}
-.btn-sec{background:transparent;color:var(--emerald2);padding:15px 40px;border:2px solid rgba(52,211,153,0.4);border-radius:50px;font-size:14px;font-weight:800;cursor:pointer;transition:all .3s;letter-spacing:.5px;}
-.btn-sec:hover{background:rgba(52,211,153,0.1);border-color:var(--emerald2);}
-
-/* TRUST */
-.trust{background:rgba(16,0,32,0.9);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;justify-content:center;gap:24px;flex-wrap:wrap;backdrop-filter:blur(12px);}
-.tch{display:flex;align-items:center;gap:10px;}
-.tch-ic{width:36px;height:36px;background:linear-gradient(135deg,rgba(139,92,246,0.3),rgba(244,114,182,0.2));border:1px solid var(--border2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;}
-.tch-txt strong{display:block;font-size:12px;font-weight:700;color:var(--white);}
-.tch-txt span{font-size:10px;color:var(--dim);}
-
-/* TICKER */
-.ticker{background:rgba(16,185,129,0.06);border-bottom:1px solid rgba(52,211,153,0.1);padding:10px 0;overflow:hidden;position:relative;}
-.ticker::before,.ticker::after{content:'';position:absolute;top:0;bottom:0;width:80px;z-index:2;}
-.ticker::before{left:0;background:linear-gradient(90deg,var(--bg),transparent);}
-.ticker::after{right:0;background:linear-gradient(-90deg,var(--bg),transparent);}
-.ticker-in{display:flex;gap:60px;animation:ticker 30s linear infinite;white-space:nowrap;}
-@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-.tki{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);}
-.tdk{width:5px;height:5px;background:var(--emerald2);border-radius:50%;animation:livePulse 1.5s infinite;}
-.tkn{color:var(--emerald2);font-weight:700;}
-
-/* SECTION */
-.section{max-width:1440px;margin:0 auto;padding:60px 24px;}
-.sec-head{text-align:center;margin-bottom:44px;}
-.sec-eye{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--pink);font-weight:800;margin-bottom:8px;}
-.sec-t{font-family:'Poppins',sans-serif;font-size:clamp(24px,3.5vw,40px);font-weight:800;color:var(--white);margin-bottom:8px;letter-spacing:-1px;}
-.sec-t em{font-style:normal;background:linear-gradient(135deg,var(--purple3),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.sec-line{width:44px;height:3px;background:linear-gradient(90deg,var(--purple),var(--pink));border-radius:2px;margin:12px auto;}
-
-/* CATEGORY CARDS */
-.catgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;}
-.ccard{background:rgba(22,0,42,0.9);border:1px solid var(--border);border-radius:18px;padding:24px 12px;text-align:center;cursor:pointer;transition:all .35s;position:relative;overflow:hidden;}
-.ccard::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(139,92,246,0),rgba(244,114,182,0));transition:all .35s;}
-.ccard:hover::after{background:linear-gradient(135deg,rgba(139,92,246,0.15),rgba(244,114,182,0.1));}
-.ccard:hover{border-color:var(--pink);transform:translateY(-8px);box-shadow:0 16px 40px rgba(244,114,182,0.2);}
-.ccard-em{font-size:36px;margin-bottom:8px;display:block;transition:transform .3s;}
-.ccard:hover .ccard-em{transform:scale(1.2) rotate(-8deg);}
-.ccard-n{font-size:11px;letter-spacing:.5px;text-transform:uppercase;font-weight:800;color:var(--muted);}
-.ccard-c{font-size:10px;color:var(--dim);margin-top:2px;}
-
-/* PRODUCT CARDS */
-.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;}
-.pcard{background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;cursor:pointer;transition:all .4s cubic-bezier(.23,1,.32,1);position:relative;transform-style:preserve-3d;}
-.pcard:hover{border-color:var(--pink);box-shadow:0 24px 60px rgba(139,92,246,0.3),0 0 0 1px rgba(244,114,182,0.2);}
-
-/* DISCOUNT STICKER */
-.disc-sticker{position:absolute;top:12px;left:12px;z-index:10;animation:stickerWiggle 3s ease-in-out infinite;}
-@keyframes stickerWiggle{0%,100%{transform:rotate(-5deg) scale(1)}25%{transform:rotate(-8deg) scale(1.05)}75%{transform:rotate(-2deg) scale(0.98)}}
-.disc-sticker-inner{background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:20px;width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(239,68,68,0.5);border:2px solid rgba(255,255,255,0.3);}
-.disc-sticker-inner span{font-size:9px;display:block;line-height:1;text-align:center;font-family:'Nunito',sans-serif;font-weight:900;}
-
-.badge-ribb{position:absolute;top:14px;right:-2px;color:#fff;padding:5px 14px 5px 10px;font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;clip-path:polygon(0 0,100% 0,93% 50%,100% 100%,0 100%);z-index:3;}
-.badge-ribb.new-b{background:linear-gradient(135deg,var(--purple),var(--purple2));}
-.badge-ribb.hot-b{background:linear-gradient(135deg,#ef4444,#f97316);}
-.badge-ribb.prem-b{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;}
-.badge-ribb.best-b{background:linear-gradient(135deg,var(--emerald),var(--emerald2));}
-
-.pimg-wrap{position:relative;height:250px;overflow:hidden;}
-.pimg-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease;}
-.pcard:hover .pimg-wrap img{transform:scale(1.08);}
-.peph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:80px;background:linear-gradient(135deg,rgba(22,0,42,1),rgba(26,0,50,1));}
-.pwish{position:absolute;top:12px;right:12px;background:rgba(10,0,21,0.85);border:1px solid rgba(255,255,255,0.1);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .25s;z-index:4;backdrop-filter:blur(8px);}
-.pwish:hover,.pwish.on{background:rgba(236,72,153,0.25);border-color:var(--pink);color:var(--pink);}
-
-/* VIEWERS BADGE */
-.pviewers{position:absolute;bottom:10px;left:10px;background:rgba(10,0,21,0.8);backdrop-filter:blur(10px);color:#fff;padding:5px 10px;border-radius:20px;font-size:10px;font-weight:700;display:flex;align-items:center;gap:5px;border:1px solid rgba(52,211,153,0.3);z-index:3;}
-.vd{width:5px;height:5px;background:var(--emerald2);border-radius:50%;animation:livePulse 1.5s infinite;}
-.psold-badge{position:absolute;bottom:10px;right:10px;background:linear-gradient(135deg,rgba(251,191,36,0.9),rgba(252,211,77,0.9));color:#000;padding:4px 9px;border-radius:20px;font-size:9px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;z-index:3;}
-
-.qadd{position:absolute;bottom:-52px;left:0;right:0;background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;border:none;padding:14px;font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:bottom .3s cubic-bezier(.23,1,.32,1);z-index:3;}
-.pcard:hover .qadd{bottom:0;}
-
-.pbody{padding:16px 16px 18px;}
-.pcat{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:4px;}
-.pname{font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;color:var(--white);line-height:1.3;margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.pstars{color:var(--gold);font-size:12px;margin-bottom:2px;}
-.prevs{font-size:9px;color:var(--dim);letter-spacing:.5px;margin-bottom:9px;}
-.pprices{display:flex;align-items:center;gap:7px;margin-bottom:8px;flex-wrap:wrap;}
-.pp{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--white);}
-.pold{font-size:12px;color:var(--dim);text-decoration:line-through;}
-.poff{font-size:10px;color:#fff;background:linear-gradient(135deg,#ef4444,#f97316);padding:2px 7px;border-radius:4px;font-weight:800;}
-.pstock{display:flex;align-items:center;gap:6px;margin-top:8px;}
-.sbar{flex:1;height:3px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden;}
-.sbarin{height:100%;border-radius:2px;}
-.sbarin.low{background:linear-gradient(90deg,#ef4444,#f97316);}
-.sbarin.ok{background:linear-gradient(90deg,var(--purple),var(--pink));}
-.stxt{font-size:9px;color:var(--dim);white-space:nowrap;}
-
-/* URGENCY STUFF */
-.urgency-row{display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap;}
-.urg-badge{font-size:9px;font-weight:800;padding:3px 8px;border-radius:5px;letter-spacing:.5px;text-transform:uppercase;animation:urgPulse 2s ease-in-out infinite;}
-.urg-fire{background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid rgba(239,68,68,0.3);}
-.urg-clock{background:rgba(251,191,36,0.12);color:var(--gold2);border:1px solid rgba(251,191,36,0.25);}
-@keyframes urgPulse{0%,100%{opacity:1}50%{opacity:.7}}
-
-/* FEATURES */
-.featgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;}
-.fcrd{background:rgba(22,0,42,0.8);border:1px solid var(--border);border-radius:18px;padding:26px 22px;transition:all .3s;}
-.fcrd:hover{border-color:rgba(244,114,182,0.4);transform:translateY(-6px);box-shadow:0 16px 40px rgba(244,114,182,0.12);}
-.fcic{width:52px;height:52px;background:linear-gradient(135deg,rgba(139,92,246,0.3),rgba(244,114,182,0.2));border:1px solid var(--border2);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px;}
-.fct{font-size:14px;font-weight:800;color:var(--white);margin-bottom:6px;}
-.fct2{font-size:12px;color:var(--muted);line-height:1.7;}
-
-/* REVIEWS */
-.prow2{display:flex;gap:14px;overflow-x:auto;padding-bottom:8px;}
-.prow2::-webkit-scrollbar{height:3px;}
-.prow2::-webkit-scrollbar-thumb{background:var(--purple);}
-.prcrd{background:rgba(22,0,42,0.9);border:1px solid var(--border);border-radius:16px;padding:18px;min-width:240px;flex-shrink:0;transition:all .2s;}
-.prcrd:hover{border-color:var(--pink);box-shadow:0 8px 24px rgba(244,114,182,0.15);}
-.prhdr{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-.prav{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px;}
-.prn{font-weight:700;font-size:13px;color:var(--white);}
-.prc{font-size:10px;color:var(--dim);}
-.prst{color:var(--gold);font-size:13px;margin-bottom:5px;}
-.prtxt{font-size:12px;color:var(--muted);line-height:1.6;font-style:italic;}
-.prti{font-size:9px;color:var(--dim);margin-top:6px;}
-.pr-verified{font-size:9px;color:var(--emerald2);font-weight:700;margin-top:4px;}
-
-/* LOYALTY */
-.loybar{background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(252,211,77,0.06));border-top:1px solid rgba(251,191,36,0.2);border-bottom:1px solid rgba(251,191,36,0.2);padding:14px 24px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;}
-.loypts{font-family:'Bebas Neue',sans-serif;font-size:26px;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-
-/* POPUP ALERT */
-.popup-alert{position:fixed;bottom:24px;left:24px;background:rgba(22,0,42,0.97);border:1px solid var(--border2);border-radius:16px;padding:14px 18px;display:flex;align-items:center;gap:12px;z-index:800;box-shadow:0 12px 40px rgba(139,92,246,0.3);backdrop-filter:blur(16px);max-width:300px;transform:translateX(-120%);transition:transform .5s cubic-bezier(.23,1,.32,1);}
-.popup-alert.show{transform:translateX(0);}
-.pa-icon{font-size:24px;flex-shrink:0;}
-.pa-name{font-size:12px;font-weight:800;color:var(--white);margin-bottom:2px;}
-.pa-msg{font-size:11px;color:var(--muted);}
-.pa-time{font-size:9px;color:var(--dim);margin-top:2px;}
-
-/* DETAIL PAGE */
-#detailPage{background:var(--bg);}
-.dnav{background:rgba(10,0,21,0.97);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(16px);}
-.bc{display:flex;align-items:center;gap:6px;font-size:11px;letter-spacing:.5px;}
-.bc a{color:var(--dim);cursor:pointer;transition:color .2s;}
-.bc a:hover{color:var(--pink);}
-.bc .sep{color:rgba(244,114,182,0.3);}
-.dwrap{max-width:1200px;margin:0 auto;padding:40px 24px;}
-.dlayout{display:grid;grid-template-columns:1.1fr 1fr;gap:52px;margin-bottom:60px;}
-@media(max-width:768px){
-  .dlayout{grid-template-columns:1fr;gap:24px;}
-  .dwrap{padding:20px 16px;}
-  .nav-in{padding:10px 14px;gap:8px;}
-  .section{padding:40px 14px;}
-  .hero h1{letter-spacing:-1px;}
-  .pgrid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;}
-  .pimg-wrap{height:180px;}
-  .peph{font-size:60px;}
+function LiveCounter({ base, label }) {
+  const [count, setCount] = useState(base);
+  useEffect(() => {
+    const t = setInterval(() => setCount(c => c + Math.floor(Math.random() * 3) - 1), 3000);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <span style={{ color: "#00f5ff", fontWeight: 700, fontSize: 13 }}>
+      {count.toLocaleString()} {label}
+    </span>
+  );
 }
-.dmai{width:100%;height:460px;background:var(--card);border-radius:20px;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);position:relative;}
-.dmai img{width:100%;height:100%;object-fit:contain;}
-.dthumbs{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
-.dthumb{width:66px;height:66px;border-radius:10px;border:2px solid var(--border);overflow:hidden;cursor:pointer;transition:all .2s;}
-.dthumb:hover,.dthumb.on{border-color:var(--pink);}
-.dthumb img{width:100%;height:100%;object-fit:cover;}
-.dbrand{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--pink);font-weight:800;margin-bottom:6px;}
-.dname{font-family:'Poppins',sans-serif;font-size:clamp(20px,2.8vw,30px);font-weight:800;color:var(--white);line-height:1.2;margin-bottom:10px;}
-.dstrow{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
-.dst{color:var(--gold);font-size:14px;}
-.drc{font-size:11px;color:var(--dim);}
-.vbdg{display:flex;align-items:center;gap:4px;background:rgba(16,185,129,0.12);border:1px solid rgba(52,211,153,0.3);color:var(--emerald2);padding:3px 10px;border-radius:20px;font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;}
 
-/* DETAIL VIEWER COUNT */
-.d-live-viewers{display:flex;align-items:center;gap:8px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:10px 14px;margin-bottom:14px;}
-.d-live-num{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#fca5a5;line-height:1;}
-.d-live-lbl{font-size:11px;color:var(--muted);}
-.d-live-anim{font-size:16px;margin-left:auto;animation:stickerWiggle 2s infinite;}
+function Particles() {
+  const canvasRef = useRef(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    const particles = Array.from({ length: 80 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 2 + 0.5,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.4,
+      color: Math.random() > 0.5 ? "#00f5ff" : "#7c3aed",
+      opacity: Math.random() * 0.7 + 0.2,
+    }));
+    let raf;
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = p.color + Math.floor(p.opacity * 255).toString(16).padStart(2, "0");
+        ctx.fill();
+      });
+      particles.forEach((p, i) => {
+        particles.slice(i + 1).forEach(q => {
+          const d = Math.hypot(p.x - q.x, p.y - q.y);
+          if (d < 100) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(q.x, q.y);
+            ctx.strokeStyle = "#00f5ff" + Math.floor((1 - d / 100) * 50).toString(16).padStart(2, "0");
+            ctx.lineWidth = 0.3;
+            ctx.stroke();
+          }
+        });
+      });
+      raf = requestAnimationFrame(draw);
+    }
+    draw();
+    return () => cancelAnimationFrame(raf);
+  }, []);
+  return <canvas ref={canvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} />;
+}
 
-.disc-big{position:absolute;top:16px;left:16px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:22px;width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(239,68,68,0.5);border:2px solid rgba(255,255,255,0.3);flex-direction:column;z-index:4;animation:stickerWiggle 3s infinite;}
-.disc-big .offs{font-size:9px;font-family:'Nunito',sans-serif;font-weight:900;margin-top:-4px;}
+function ProductModal({ product, onClose, onAddToCart }) {
+  const [qty, setQty] = useState(1);
+  const [viewing] = useState(Math.floor(Math.random() * 200) + 100);
+  const [soldRecent] = useState(Math.floor(Math.random() * 160) + 40);
+  const [activeImg, setActiveImg] = useState(0);
+  const [added, setAdded] = useState(false);
 
-.dprice{font-family:'Bebas Neue',sans-serif;font-size:46px;color:var(--white);line-height:1;}
-.doldp{font-size:14px;color:var(--dim);text-decoration:line-through;margin-top:2px;}
-.dsave{display:inline-flex;align-items:center;gap:6px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);color:#fca5a5;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:800;margin-top:6px;}
-.olbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:800;color:var(--dim);margin-bottom:7px;margin-top:18px;}
-.szopts{display:flex;gap:7px;flex-wrap:wrap;}
-.szopt{border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .2s;background:rgba(255,255,255,0.03);}
-.szopt:hover,.szopt.on{border-color:var(--pink);background:rgba(244,114,182,0.1);color:var(--pink);}
-.pkopts{display:flex;gap:9px;flex-wrap:wrap;}
-.pkopt{border:1px solid var(--border);border-radius:12px;padding:11px 16px;cursor:pointer;transition:all .2s;min-width:100px;text-align:center;background:rgba(255,255,255,0.02);}
-.pkopt:hover,.pkopt.on{border-color:var(--pink);background:rgba(244,114,182,0.08);}
-.pklbl{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);margin-bottom:2px;}
-.pkp{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);}
-.pksv{font-size:9px;color:var(--emerald2);font-weight:700;}
-.qrow{display:flex;align-items:center;gap:10px;margin-top:4px;}
-.qb{width:36px;height:36px;border:1px solid var(--border);border-radius:8px;background:rgba(255,255,255,0.04);color:var(--white);font-size:18px;cursor:pointer;font-weight:800;transition:all .2s;}
-.qb:hover{border-color:var(--pink);color:var(--pink);}
-.qn{font-family:'Bebas Neue',sans-serif;font-size:22px;min-width:28px;text-align:center;color:var(--white);}
-.qtot{font-size:12px;color:var(--muted);}
-.qtot strong{color:var(--emerald2);}
-.ddel{background:rgba(16,185,129,0.06);border:1px solid rgba(52,211,153,0.2);border-radius:12px;padding:14px 16px;margin:16px 0;}
-.ddel p{font-size:11px;color:var(--emerald2);font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:6px;}
-.dbuy{width:100%;background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;padding:16px;border:none;border-radius:14px;font-size:14px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;margin-bottom:10px;transition:all .3s;box-shadow:0 6px 24px rgba(139,92,246,0.4);}
-.dbuy:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(139,92,246,0.6);}
-.dcart{width:100%;background:transparent;color:var(--emerald2);padding:14px;border:2px solid rgba(52,211,153,0.35);border-radius:14px;font-size:13px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:all .2s;margin-bottom:10px;}
-.dcart:hover{background:rgba(52,211,153,0.08);border-color:var(--emerald2);}
-.dtrust{display:flex;gap:8px;flex-wrap:wrap;}
-.dtch{font-size:10px;color:var(--dim);font-weight:600;}
-.descbox{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px;margin-top:28px;}
-.desbt{font-family:'Poppins',sans-serif;font-size:18px;font-weight:800;color:var(--white);margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border);}
-.desct{font-size:14px;line-height:1.9;color:var(--muted);}
-.relgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-top:18px;}
-.relcrd{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .25s;}
-.relcrd:hover{border-color:var(--pink);transform:translateY(-5px);}
-.relimg{height:130px;overflow:hidden;background:var(--bg3);display:flex;align-items:center;justify-content:center;}
-.relimg img{width:100%;height:100%;object-fit:cover;transition:transform .4s;}
-.relcrd:hover .relimg img{transform:scale(1.06);}
-.reli{padding:10px;}
-.reln{font-size:12px;font-weight:700;color:var(--white);margin-bottom:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.relp{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--pink);}
+  const handleAdd = () => {
+    onAddToCart(product, qty);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  };
 
-/* DETAIL REVIEWS */
-.drev-section{margin-top:32px;}
-.drev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-top:16px;}
-.drev-card{background:rgba(22,0,42,0.8);border:1px solid var(--border);border-radius:14px;padding:16px;}
-.drev-top{display:flex;align-items:center;gap:9px;margin-bottom:8px;}
-.drav{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:13px;}
-.drnm{font-weight:700;font-size:12px;color:var(--white);}
-.drct{font-size:10px;color:var(--dim);}
-.drst{color:var(--gold);font-size:12px;margin-bottom:4px;}
-.drtxt{font-size:12px;color:var(--muted);line-height:1.6;}
-.drverified{font-size:9px;color:var(--emerald2);font-weight:700;margin-top:6px;}
+  return (
+    <div onClick={onClose} style={{
+      position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 1000,
+      display: "flex", alignItems: "center", justifyContent: "center", padding: 16,
+      backdropFilter: "blur(10px)",
+    }}>
+      <div onClick={e => e.stopPropagation()} style={{
+        background: "linear-gradient(135deg, rgba(10,10,30,0.98) 0%, rgba(20,10,50,0.98) 100%)",
+        border: "1px solid rgba(0,245,255,0.2)",
+        borderRadius: 24, maxWidth: 900, width: "100%", maxHeight: "90vh",
+        overflowY: "auto", boxShadow: "0 0 60px rgba(0,245,255,0.1), 0 0 120px rgba(124,58,237,0.1)",
+        position: "relative",
+      }}>
+        <button onClick={onClose} style={{
+          position: "absolute", top: 16, right: 16, background: "rgba(255,255,255,0.05)",
+          border: "1px solid rgba(255,255,255,0.1)", color: "#fff", width: 36, height: 36,
+          borderRadius: "50%", cursor: "pointer", fontSize: 18, zIndex: 10,
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>×</button>
 
-/* MODALS */
-.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:800;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(10px);}
-.ov.open{display:flex;}
-.modal{background:var(--card);border:1px solid var(--border2);border-radius:20px;width:100%;max-width:500px;max-height:93vh;overflow-y:auto;box-shadow:0 32px 100px rgba(139,92,246,0.3);}
-.mhdr{background:linear-gradient(135deg,rgba(139,92,246,0.25),rgba(244,114,182,0.15));padding:20px 24px;border-radius:20px 20px 0 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
-.mhdr h3{font-family:'Poppins',sans-serif;font-size:18px;color:var(--white);font-weight:800;}
-.mclose{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--muted);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
-.mclose:hover{background:rgba(239,68,68,0.2);color:#fff;}
-.mbody{padding:22px;}
-.osumbox{background:rgba(139,92,246,0.07);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;}
-.osumbox h4{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--pink);font-weight:800;margin-bottom:10px;}
-.srow{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:4px;}
-.srow.tot{font-weight:800;font-size:16px;color:var(--white);border-top:1px solid var(--border);padding-top:9px;margin-top:7px;}
-.fg{margin-bottom:13px;}
-.fg label{display:block;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);font-weight:800;margin-bottom:5px;}
-.fg input,.fg select,.fg textarea{width:100%;padding:11px 14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;font-size:13px;color:var(--white);outline:none;transition:all .2s;}
-.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--pink);background:rgba(244,114,182,0.05);}
-.fg select option{background:var(--card);}
-.fg textarea{resize:vertical;min-height:60px;}
-.pbtn2{width:100%;background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;padding:15px;border:none;border-radius:12px;font-size:13px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:all .3s;margin-top:6px;box-shadow:0 6px 20px rgba(139,92,246,0.35);}
-.pbtn2:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(139,92,246,0.5);}
-.succ{text-align:center;padding:36px 20px;}
-.sicon{font-size:60px;margin-bottom:14px;}
-.st2{font-family:'Poppins',sans-serif;font-size:22px;color:var(--emerald2);margin-bottom:8px;font-weight:800;}
-.ssub{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:18px;}
-.sdet{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:left;margin-bottom:18px;}
-.sdr{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;}
-.sdr:last-child{border-bottom:none;}
-.sdr span:first-child{color:var(--dim);font-size:10px;letter-spacing:1px;text-transform:uppercase;}
-.sdr span:last-child{font-weight:700;color:var(--muted);}
-.ptn{background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px;}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0 }}>
+          {/* Left: images */}
+          <div style={{ padding: 32, borderRight: "1px solid rgba(255,255,255,0.05)" }}>
+            <div style={{
+              background: `radial-gradient(circle at center, ${product.colors[0]}22, transparent 70%)`,
+              borderRadius: 16, height: 280, display: "flex", alignItems: "center", justifyContent: "center",
+              border: "1px solid rgba(0,245,255,0.1)", marginBottom: 16, position: "relative", overflow: "hidden",
+            }}>
+              <div style={{
+                position: "absolute", inset: 0,
+                background: `radial-gradient(ellipse at 50% 50%, ${product.colors[0]}15, transparent 70%)`,
+              }} />
+              <span style={{ fontSize: 100, filter: "drop-shadow(0 0 30px " + product.colors[0] + ")" }}>
+                {product.images[activeImg]}
+              </span>
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              {product.images.map((img, i) => (
+                <button key={i} onClick={() => setActiveImg(i)} style={{
+                  flex: 1, height: 60, background: activeImg === i ? `${product.colors[0]}22` : "rgba(255,255,255,0.03)",
+                  border: `1px solid ${activeImg === i ? product.colors[0] : "rgba(255,255,255,0.08)"}`,
+                  borderRadius: 8, cursor: "pointer", fontSize: 28, display: "flex", alignItems: "center", justifyContent: "center",
+                  transition: "all 0.2s",
+                }}>{img}</button>
+              ))}
+            </div>
+          </div>
 
-/* CART */
-.cov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:700;backdrop-filter:blur(4px);}
-.cov.open{display:block;}
-.cdr{position:fixed;right:0;top:0;height:100vh;width:380px;max-width:96vw;background:var(--card);z-index:701;display:flex;flex-direction:column;transform:translateX(110%);transition:transform .35s cubic-bezier(.4,0,.2,1);border-left:1px solid var(--border);}
-.cdr.open{transform:translateX(0);}
-.cdhdr{background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(244,114,182,0.1));padding:18px 22px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;border-bottom:1px solid var(--border);}
-.cdhdr h3{font-family:'Poppins',sans-serif;font-size:18px;color:var(--white);font-weight:800;}
-.citems{flex:1;overflow-y:auto;padding:14px 18px;}
-.ci{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
-.ciimg{width:68px;height:68px;background:var(--bg3);border-radius:10px;overflow:hidden;flex-shrink:0;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;}
-.ciimg img{width:68px;height:68px;object-fit:cover;}
-.cinfo{flex:1;}
-.cin{font-weight:700;font-size:12px;color:var(--white);margin-bottom:2px;}
-.cisz{font-size:10px;color:var(--pink);font-weight:700;}
-.cip{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--white);margin-top:2px;}
-.ciqr{display:flex;align-items:center;gap:7px;margin-top:5px;}
-.ciqb{width:24px;height:24px;border:1px solid var(--border);border-radius:5px;background:rgba(255,255,255,0.04);color:var(--white);font-size:15px;cursor:pointer;font-weight:800;transition:all .2s;}
-.ciqb:hover{border-color:var(--pink);}
-.ciqn{font-size:13px;font-weight:800;color:var(--white);}
-.cirm{background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer;margin-left:4px;}
-.cirm:hover{color:#ef4444;}
-.cft{padding:16px 18px;border-top:1px solid var(--border);flex-shrink:0;}
-.ctots .cr{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:5px;}
-.ctots .grand{font-weight:800;font-size:17px;color:var(--white);border-top:1px solid var(--border);padding-top:9px;margin-top:5px;}
-.ckbtn{width:100%;background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;padding:14px;border:none;border-radius:12px;font-size:13px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;margin-top:10px;transition:all .3s;box-shadow:0 4px 16px rgba(139,92,246,0.35);}
-.ckbtn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(139,92,246,0.5);}
-.emc{text-align:center;padding:60px 20px;color:var(--dim);}
-.emci{font-size:60px;margin-bottom:12px;}
+          {/* Right: details */}
+          <div style={{ padding: 32 }}>
+            <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+              <span style={{ background: `${product.colors[0]}22`, color: product.colors[0], fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20, border: `1px solid ${product.colors[0]}44`, letterSpacing: 1 }}>{product.badge}</span>
+              <span style={{ background: "rgba(239,68,68,0.15)", color: "#ef4444", fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20, border: "1px solid rgba(239,68,68,0.3)" }}>COD AVAILABLE</span>
+            </div>
 
-/* WISH MODAL */
-.wish-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;}
+            <h2 style={{ color: "#fff", fontSize: 24, fontWeight: 700, margin: "0 0 8px", letterSpacing: -0.5 }}>{product.name}</h2>
 
-/* TOAST */
-.toast{position:fixed;top:20px;right:20px;background:var(--card);color:var(--white);border:1px solid var(--border2);padding:14px 20px;border-radius:14px;font-size:12px;font-weight:700;z-index:9999;transform:translateX(130%);opacity:0;transition:all .4s cubic-bezier(.23,1,.32,1);max-width:280px;box-shadow:0 12px 40px rgba(139,92,246,0.3);}
-.toast.show{transform:translateX(0);opacity:1;}
-.toast.ok{background:rgba(16,185,129,0.18);border-color:var(--emerald2);color:var(--emerald2);}
-.toast.err{background:rgba(239,68,68,0.15);border-color:#ef4444;color:#fca5a5;}
-.toast.info{background:rgba(139,92,246,0.18);border-color:var(--purple3);color:var(--purple3);}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+              <StarRating rating={product.rating} size={16} />
+              <span style={{ color: "#94a3b8", fontSize: 13 }}>{product.rating} ({product.reviews.toLocaleString()} reviews)</span>
+            </div>
 
-footer{background:var(--bg2);border-top:1px solid var(--border);padding:56px 24px 24px;}
-.fin{max-width:1200px;margin:0 auto;}
-.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:36px;margin-bottom:36px;}
-.fbrand .fl{font-family:'Poppins',sans-serif;font-size:22px;font-weight:800;color:var(--white);margin-bottom:4px;}
-.fbrand .fl span{color:var(--pink);}
-.fbrand p{font-size:12px;color:var(--dim);line-height:1.7;margin-top:8px;}
-.fcol h4{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);font-weight:800;margin-bottom:12px;}
-.fcol a{display:block;font-size:12px;color:rgba(255,255,255,0.25);margin-bottom:7px;cursor:pointer;transition:color .2s;text-decoration:none;}
-.fcol a:hover{color:var(--pink);}
-.fbot{border-top:1px solid var(--border);padding-top:18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
-.fbot p{font-size:11px;color:rgba(255,255,255,0.15);}
-.fbdgs{display:flex;gap:7px;}
-.fbdg{background:rgba(255,255,255,0.04);border:1px solid var(--border);padding:4px 10px;border-radius:5px;font-size:9px;color:rgba(255,255,255,0.25);letter-spacing:1px;text-transform:uppercase;}
-</style>
-</head>
-<body>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 8 }}>
+              <span style={{ color: "#00f5ff", fontSize: 32, fontWeight: 800 }}>Rs. {product.price.toLocaleString()}</span>
+              <span style={{ color: "#6b7280", fontSize: 18, textDecoration: "line-through" }}>Rs. {product.originalPrice.toLocaleString()}</span>
+              <span style={{ color: "#22c55e", fontSize: 14, fontWeight: 600 }}>
+                {Math.round((1 - product.price / product.originalPrice) * 100)}% OFF
+              </span>
+            </div>
 
-<div class="cursor" id="cursor"></div>
-<div class="cursor-ring" id="cursorRing"></div>
-<canvas id="bgCanvas"></canvas>
-<div class="bg-orbs"><div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div><div class="orb orb4"></div></div>
+            <div style={{ display: "flex", gap: 16, marginBottom: 20, flexWrap: "wrap" }}>
+              <span style={{ color: "#f59e0b", fontSize: 12 }}>🔥 {viewing} viewing now</span>
+              <span style={{ color: "#22c55e", fontSize: 12 }}>✅ {soldRecent} sold in 3 hours</span>
+            </div>
 
-<!-- POPUP ALERT -->
-<div class="popup-alert" id="popupAlert">
-  <div class="pa-icon" id="paIcon">🛍️</div>
-  <div><div class="pa-name" id="paName">Someone</div><div class="pa-msg" id="paMsg">just placed an order!</div><div class="pa-time" id="paTime">2 minutes ago</div></div>
-</div>
+            <p style={{ color: "#94a3b8", fontSize: 14, lineHeight: 1.7, marginBottom: 20 }}>{product.description}</p>
 
-<!-- ════ STORE PAGE ════ -->
-<div id="storePage" class="page active">
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 24 }}>
+              {product.features.map(f => (
+                <span key={f} style={{ background: "rgba(0,245,255,0.05)", border: "1px solid rgba(0,245,255,0.15)", color: "#00f5ff", fontSize: 11, padding: "4px 10px", borderRadius: 20 }}>✓ {f}</span>
+              ))}
+            </div>
 
-<div class="ann"><span class="ann-txt">🔥 FLASH SALE LIVE &nbsp;✦&nbsp; Cash on Delivery &nbsp;✦&nbsp; Free Delivery Above PKR 3,000 &nbsp;✦&nbsp; 50,000+ Happy Customers &nbsp;✦&nbsp; Easy 7-Day Returns 🔥</span></div>
+            <div style={{ background: "rgba(0,0,0,0.3)", borderRadius: 12, padding: 16, marginBottom: 20, border: "1px solid rgba(255,255,255,0.05)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                <span style={{ color: "#94a3b8", fontSize: 13 }}>📦 Delivery</span>
+                <span style={{ color: "#22c55e", fontSize: 13, fontWeight: 600 }}>FREE (above Rs. 2000)</span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                <span style={{ color: "#94a3b8", fontSize: 13 }}>🕐 Est. Delivery</span>
+                <span style={{ color: "#fff", fontSize: 13 }}>3-5 Business Days</span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span style={{ color: "#94a3b8", fontSize: 13 }}>💵 Payment</span>
+                <span style={{ color: "#f59e0b", fontSize: 13, fontWeight: 600 }}>Cash on Delivery</span>
+              </div>
+            </div>
 
-<nav class="nav">
-  <div class="nav-in">
-    <div class="logo" onclick="goCat('all')">
-      <div class="logo-icon">🛍️</div>
-      <div class="logo-text-wrap">
-        <div class="logo-text">Nest<span>Kart</span></div>
-        <div class="logo-sub">Pakistan's #1 Luxury Store</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+              <span style={{ color: "#94a3b8", fontSize: 13 }}>Qty:</span>
+              <div style={{ display: "flex", alignItems: "center", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, overflow: "hidden" }}>
+                <button onClick={() => setQty(q => Math.max(1, q-1))} style={{ width: 36, height: 36, background: "none", border: "none", color: "#fff", cursor: "pointer", fontSize: 18 }}>-</button>
+                <span style={{ color: "#fff", padding: "0 16px", fontSize: 15, fontWeight: 600 }}>{qty}</span>
+                <button onClick={() => setQty(q => q+1)} style={{ width: 36, height: 36, background: "none", border: "none", color: "#fff", cursor: "pointer", fontSize: 18 }}>+</button>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: 12 }}>
+              <button onClick={handleAdd} style={{
+                flex: 1, padding: "14px 0", borderRadius: 12, border: `2px solid #00f5ff`,
+                background: added ? "rgba(0,245,255,0.2)" : "transparent",
+                color: "#00f5ff", fontWeight: 700, fontSize: 15, cursor: "pointer",
+                transition: "all 0.2s", letterSpacing: 0.5,
+              }}>{added ? "✓ ADDED!" : "🛒 ADD TO CART"}</button>
+              <button style={{
+                flex: 1, padding: "14px 0", borderRadius: 12, border: "none",
+                background: "linear-gradient(135deg, #00f5ff, #7c3aed)",
+                color: "#fff", fontWeight: 700, fontSize: 15, cursor: "pointer",
+                boxShadow: "0 0 24px rgba(0,245,255,0.3)",
+              }}>⚡ BUY NOW</button>
+            </div>
+          </div>
+        </div>
+
+        {/* Reviews */}
+        <div style={{ padding: "24px 32px", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+          <h3 style={{ color: "#fff", fontSize: 16, fontWeight: 700, marginBottom: 16 }}>⭐ Customer Reviews</h3>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+            {product.reviews_data.map((r, i) => (
+              <div key={i} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 12, padding: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: "50%", background: `linear-gradient(135deg, ${product.colors[0]}, ${product.colors[1]})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "#fff" }}>{r.avatar}</div>
+                  <div>
+                    <div style={{ color: "#fff", fontSize: 13, fontWeight: 600 }}>{r.name}</div>
+                    <div style={{ color: "#64748b", fontSize: 11 }}>{r.city} • ✅ Verified</div>
+                  </div>
+                </div>
+                <StarRating rating={r.rating} size={12} />
+                <p style={{ color: "#94a3b8", fontSize: 13, marginTop: 8, lineHeight: 1.5 }}>{r.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
-    <div class="srch">
-      <input type="text" id="srchIn" placeholder="🔍  Search products..." oninput="doSearch()">
-      <button class="srch-btn">🔍</button>
-    </div>
-    <div class="nav-right">
-      <div class="nav-icon-btn" onclick="openWish()" title="Wishlist">
-        <span>♡</span>
-        <span class="badge-dot" id="wb1">0</span>
+  );
+}
+
+function ProductCard({ product, onOpen }) {
+  const [hovered, setHovered] = useState(false);
+  const discount = Math.round((1 - product.price / product.originalPrice) * 100);
+
+  return (
+    <div onClick={() => onOpen(product)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        background: hovered
+          ? `linear-gradient(135deg, rgba(10,10,30,0.95) 0%, rgba(${product.id % 2 === 0 ? "124,58,237" : "0,245,255"},0.05) 100%)`
+          : "rgba(10,10,30,0.8)",
+        border: `1px solid ${hovered ? product.colors[0] + "60" : "rgba(255,255,255,0.06)"}`,
+        borderRadius: 20, cursor: "pointer", overflow: "hidden",
+        transition: "all 0.3s",
+        transform: hovered ? "translateY(-6px) scale(1.01)" : "none",
+        boxShadow: hovered ? `0 20px 40px rgba(0,0,0,0.5), 0 0 30px ${product.colors[0]}20` : "0 4px 20px rgba(0,0,0,0.3)",
+        position: "relative",
+      }}>
+      {/* Badge */}
+      <div style={{ position: "absolute", top: 12, left: 12, zIndex: 2 }}>
+        <span style={{ background: `linear-gradient(135deg, ${product.colors[0]}, ${product.colors[1]})`, color: "#fff", fontSize: 10, fontWeight: 800, padding: "3px 8px", borderRadius: 20, letterSpacing: 1 }}>{product.badge}</span>
       </div>
-      <div class="nav-icon-btn" title="Track Order" onclick="showToast('📦 Contact us on WhatsApp to track your order!','info')">
-        <span>📦</span>
+      <div style={{ position: "absolute", top: 12, right: 12, zIndex: 2 }}>
+        <span style={{ background: "rgba(239,68,68,0.9)", color: "#fff", fontSize: 10, fontWeight: 700, padding: "3px 7px", borderRadius: 20 }}>{discount}% OFF</span>
       </div>
-      <div class="nav-icon-btn" title="Support" onclick="showToast('📞 Call us: 0314-5338766','info')">
-        <span>📞</span>
+
+      {/* Image area */}
+      <div style={{
+        height: 180, display: "flex", alignItems: "center", justifyContent: "center",
+        background: `radial-gradient(ellipse at center, ${product.colors[0]}15, transparent 70%)`,
+        position: "relative",
+      }}>
+        <span style={{
+          fontSize: 72,
+          filter: `drop-shadow(0 0 20px ${product.colors[0]}80)`,
+          transform: hovered ? "scale(1.15) rotate(5deg)" : "scale(1)",
+          transition: "transform 0.4s cubic-bezier(0.34,1.56,0.64,1)",
+          display: "block",
+        }}>{product.emoji}</span>
       </div>
-      <button class="cart-btn" onclick="openCart()">
-        🛒 Cart <span class="cc" id="cn1">0</span>
-      </button>
-    </div>
-  </div>
-  <div class="catnav"><div class="catnav-in" id="catBar"></div></div>
-</nav>
 
-<!-- FLASH SALE TIMER -->
-<div class="flash">
-  <span class="flash-lbl">⚡ FLASH SALE ENDS IN</span>
-  <div class="ftimer">
-    <div class="fblock"><span class="fnum" id="fh">08</span><span class="flab">Hours</span></div>
-    <span class="fsep">:</span>
-    <div class="fblock"><span class="fnum" id="fm">34</span><span class="flab">Mins</span></div>
-    <span class="fsep">:</span>
-    <div class="fblock"><span class="fnum" id="fs">17</span><span class="flab">Secs</span></div>
-  </div>
-  <span style="font-size:13px;color:var(--muted);">Up to <strong style="color:var(--gold);">70% OFF</strong> selected items 🔥</span>
-</div>
+      {/* Info */}
+      <div style={{ padding: "16px 16px 20px" }}>
+        <p style={{ color: "#64748b", fontSize: 11, fontWeight: 600, letterSpacing: 1, marginBottom: 4, textTransform: "uppercase" }}>{product.category}</p>
+        <h3 style={{ color: "#fff", fontSize: 15, fontWeight: 700, marginBottom: 8, lineHeight: 1.3 }}>{product.name}</h3>
 
-<!-- STATS BAR -->
-<div class="stats-bar"><div class="stats-in" id="statsBar"></div></div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12 }}>
+          <StarRating rating={product.rating} size={12} />
+          <span style={{ color: "#64748b", fontSize: 11 }}>({product.reviews.toLocaleString()})</span>
+        </div>
 
-<!-- TICKER -->
-<div class="ticker"><div class="ticker-in" id="tickIn"></div></div>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 14 }}>
+          <span style={{ color: "#00f5ff", fontSize: 18, fontWeight: 800 }}>Rs. {product.price.toLocaleString()}</span>
+          <span style={{ color: "#4b5563", fontSize: 13, textDecoration: "line-through" }}>Rs. {product.originalPrice.toLocaleString()}</span>
+        </div>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-content">
-    <div class="hero-badge"><span class="live-dot"></span> <span id="liveV">247</span> People Shopping Right Now</div>
-    <h1>Pakistan's Most<br><span class="grad">Loved Luxury Store</span></h1>
-    <p class="hero-sub">Premium Kitchen · Fashion · Electronics · Beauty · Home Decor<br>💰 Cash on Delivery — Delivered Anywhere in Pakistan 🚚</p>
-    <div class="hero-stats">
-      <div class="hstat"><div class="hstat-n" id="soldToday">189</div><div class="hstat-l">Sold Today</div></div>
-      <div class="hstat"><div class="hstat-n">50K+</div><div class="hstat-l">Customers</div></div>
-      <div class="hstat"><div class="hstat-n">4.9★</div><div class="hstat-l">Avg Rating</div></div>
-      <div class="hstat"><div class="hstat-n">130+</div><div class="hstat-l">Cities</div></div>
-    </div>
-    <div class="hcta">
-      <button class="btn-main" onclick="document.getElementById('shopSec').scrollIntoView({behavior:'smooth'})">🛍️ Shop Best Deals</button>
-      <button class="btn-sec" onclick="goCat('Clothing')">✨ View Collections</button>
-    </div>
-  </div>
-</section>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+          <span style={{ color: "#22c55e", fontSize: 11 }}>✅ {product.sold.toLocaleString()} sold</span>
+          <span style={{ color: "#f59e0b", fontSize: 11 }}>💵 COD</span>
+        </div>
 
-<!-- TRUST -->
-<div class="trust">
-  <div class="tch"><div class="tch-ic">🚚</div><div class="tch-txt"><strong>3–6 Day Delivery</strong><span>All Over Pakistan · PKR 200</span></div></div>
-  <div class="tch"><div class="tch-ic">💰</div><div class="tch-txt"><strong>Cash on Delivery</strong><span>Pay when you receive</span></div></div>
-  <div class="tch"><div class="tch-ic">🔄</div><div class="tch-txt"><strong>Easy Returns</strong><span>7-Day Return Policy</span></div></div>
-  <div class="tch"><div class="tch-ic">⭐</div><div class="tch-txt"><strong>100% Authentic</strong><span>Quality Guaranteed</span></div></div>
-  <div class="tch"><div class="tch-ic">🛡️</div><div class="tch-txt"><strong>Buyer Protection</strong><span>Safe & Secure</span></div></div>
-</div>
-
-<!-- CATEGORIES -->
-<section class="section">
-  <div class="sec-head"><div class="sec-eye">Explore</div><h2 class="sec-t">Our <em>Collections</em></h2><div class="sec-line"></div></div>
-  <div class="catgrid" id="catGrid"></div>
-</section>
-
-<!-- SHOP -->
-<section class="section" id="shopSec" style="padding-top:0;">
-  <div class="sec-head"><div class="sec-eye">Luxury Products</div><h2 class="sec-t" id="secT">All <em>Products</em></h2><div class="sec-line"></div></div>
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
-    <div style="display:flex;gap:7px;flex-wrap:wrap;" id="fbtns"></div>
-    <div style="display:flex;align-items:center;gap:10px;">
-      <span id="pcnt" style="font-size:11px;color:var(--dim);"></span>
-      <select id="sortSel" onchange="doSort()" style="background:var(--card);border:1px solid var(--border);color:var(--muted);padding:8px 14px;font-size:12px;border-radius:10px;cursor:pointer;outline:none;">
-        <option value="default">Sort: Featured</option>
-        <option value="low">Price: Low → High</option>
-        <option value="high">Price: High → Low</option>
-        <option value="rating">Highest Rated</option>
-        <option value="newest">Newest First</option>
-      </select>
-    </div>
-  </div>
-  <div class="pgrid" id="pgrid"></div>
-</section>
-
-<!-- FEATURES -->
-<section style="background:rgba(13,0,26,0.95);padding:60px 0;border-top:1px solid var(--border);">
-  <div class="section" style="padding-top:0;padding-bottom:0;">
-    <div class="sec-head"><div class="sec-eye">Why NestKart?</div><h2 class="sec-t">Why <em>50,000+</em> Trust Us</h2><div class="sec-line"></div></div>
-    <div class="featgrid">
-      <div class="fcrd"><div class="fcic">🚚</div><div class="fct">Fast Nationwide</div><div class="fct2">3–6 day delivery to all 130+ cities across Pakistan.</div></div>
-      <div class="fcrd"><div class="fcic">💰</div><div class="fct">Cash on Delivery</div><div class="fct2">Pay only when you receive. No advance payment ever.</div></div>
-      <div class="fcrd"><div class="fcic">🔄</div><div class="fct">Easy Returns</div><div class="fct2">7-day return policy — no questions asked.</div></div>
-      <div class="fcrd"><div class="fcic">⭐</div><div class="fct">100% Authentic</div><div class="fct2">Every product quality-checked before dispatch.</div></div>
-      <div class="fcrd"><div class="fcic">🎁</div><div class="fct">Loyalty Rewards</div><div class="fct2">Earn NestPoints on every purchase & redeem for discounts.</div></div>
-      <div class="fcrd"><div class="fcic">📞</div><div class="fct">24/7 Support</div><div class="fct2">Customer support every day to assist you anytime.</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- REVIEWS -->
-<section class="section">
-  <div class="sec-head"><div class="sec-eye">Real Stories</div><h2 class="sec-t">What Customers <em>Say</em></h2><div class="sec-line"></div></div>
-  <div class="prow2" id="prow"></div>
-</section>
-
-<div class="loybar">
-  <span style="font-size:13px;font-weight:600;color:var(--muted);">🎁 Your NestPoints:</span>
-  <span class="loypts" id="lpts">0</span>
-  <span style="font-size:13px;font-weight:600;color:var(--muted);">pts — Earn more with every order!</span>
-</div>
-
-<footer>
-  <div class="fin">
-    <div class="fgrid">
-      <div class="fbrand"><div class="fl">Nest<span>Kart</span></div><p>Pakistan's #1 luxury online store. Premium products with guaranteed quality, Cash on Delivery nationwide.</p></div>
-      <div class="fcol"><h4>Shop</h4><a onclick="goCat('Clothing')">Clothing</a><a onclick="goCat('Shoes')">Shoes</a><a onclick="goCat('Electronics')">Electronics</a><a onclick="goCat('Beauty')">Beauty</a><a onclick="goCat('Kitchen Tools')">Kitchen Tools</a></div>
-      <div class="fcol"><h4>Help</h4><a>Track My Order</a><a>Return Policy</a><a>Delivery Info</a><a>Size Guide</a><a>Contact Us</a></div>
-      <div class="fcol"><h4>Contact</h4><a>📞 0314-5338766</a><a>⏰ Mon–Sat 9am–9pm</a><a>🚚 All Over Pakistan</a><a>💰 Cash on Delivery</a></div>
-    </div>
-    <div class="fbot"><p>© 2026 NestKart PK — All Rights Reserved</p><div class="fbdgs"><span class="fbdg">COD</span><span class="fbdg">EasyPaisa</span><span class="fbdg">JazzCash</span><span class="fbdg">Bank Transfer</span></div></div>
-  </div>
-</footer>
-</div>
-
-<!-- ════ DETAIL PAGE ════ -->
-<div id="detailPage" class="page">
-<div class="ann">✦ FLASH SALE — Cash on Delivery · 7-Day Easy Returns · 100% Authentic ✦</div>
-<nav class="nav">
-  <div class="nav-in">
-    <div class="logo" onclick="showStore()">
-      <div class="logo-icon">🛍️</div>
-      <div class="logo-text-wrap">
-        <div class="logo-text">Nest<span>Kart</span></div>
-        <div class="logo-sub">Pakistan's #1 Luxury Store</div>
+        <button style={{
+          width: "100%", padding: "10px 0", borderRadius: 10,
+          background: hovered ? `linear-gradient(135deg, ${product.colors[0]}, ${product.colors[1]})` : "rgba(255,255,255,0.05)",
+          border: `1px solid ${hovered ? "transparent" : "rgba(255,255,255,0.1)"}`,
+          color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer",
+          transition: "all 0.3s",
+          boxShadow: hovered ? `0 0 20px ${product.colors[0]}40` : "none",
+        }}>
+          {hovered ? "VIEW PRODUCT →" : "🛒 Add to Cart"}
+        </button>
       </div>
     </div>
-    <div class="srch"><input type="text" placeholder="🔍 Search products..." oninput="doSearchVal(this.value)"><button class="srch-btn">🔍</button></div>
-    <div class="nav-right">
-      <div class="nav-icon-btn" onclick="openWish()"><span>♡</span><span class="badge-dot" id="wb2">0</span></div>
-      <button class="cart-btn" onclick="openCart()">🛒 Cart <span class="cc" id="cn2">0</span></button>
+  );
+}
+
+function LivePopup() {
+  const [popup, setPopup] = useState(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const show = () => {
+      const p = PRODUCTS[Math.floor(Math.random() * PRODUCTS.length)];
+      const name = NAMES[Math.floor(Math.random() * NAMES.length)];
+      const city = CITIES[Math.floor(Math.random() * CITIES.length)];
+      setPopup({ product: p, name, city });
+      setVisible(true);
+      setTimeout(() => setVisible(false), 5000);
+    };
+    show();
+    const t = setInterval(show, 15000);
+    return () => clearInterval(t);
+  }, []);
+
+  if (!popup) return null;
+
+  return (
+    <div style={{
+      position: "fixed", bottom: 24, left: 24, zIndex: 999,
+      background: "rgba(10,10,30,0.95)",
+      border: "1px solid rgba(0,245,255,0.3)",
+      borderRadius: 16, padding: "14px 18px",
+      maxWidth: 280, backdropFilter: "blur(20px)",
+      boxShadow: "0 0 30px rgba(0,245,255,0.15), 0 20px 40px rgba(0,0,0,0.5)",
+      transform: visible ? "translateY(0) scale(1)" : "translateY(100px) scale(0.8)",
+      opacity: visible ? 1 : 0,
+      transition: "all 0.4s cubic-bezier(0.34,1.56,0.64,1)",
+    }}>
+      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+        <div style={{
+          width: 48, height: 48, borderRadius: 12, background: `radial-gradient(circle, ${popup.product.colors[0]}30, transparent)`,
+          border: `1px solid ${popup.product.colors[0]}40`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24,
+        }}>{popup.product.emoji}</div>
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+            <span style={{ background: "rgba(34,197,94,0.2)", color: "#22c55e", fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 10, border: "1px solid rgba(34,197,94,0.3)" }}>🔴 LIVE</span>
+          </div>
+          <p style={{ color: "#fff", fontSize: 13, fontWeight: 600, margin: 0, lineHeight: 1.3 }}>
+            <span style={{ color: "#00f5ff" }}>{popup.name}</span> from {popup.city}
+          </p>
+          <p style={{ color: "#94a3b8", fontSize: 12, margin: 0 }}>ordered <span style={{ color: "#f59e0b" }}>{popup.product.name}</span></p>
+          <p style={{ color: "#22c55e", fontSize: 11, margin: "2px 0 0", fontWeight: 600 }}>💵 Cash on Delivery</p>
+        </div>
+      </div>
     </div>
-  </div>
-</nav>
-<div class="dnav">
-  <div class="bc"><a onclick="showStore()">Home</a><span class="sep">›</span><a id="brdC" onclick="showStore()">Products</a><span class="sep">›</span><span id="brdP" style="color:var(--muted);font-weight:600;">Product</span></div>
-  <button onclick="showStore()" style="background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--dim);padding:7px 16px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--pink)';this.style.color='var(--pink)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--dim)'">← Back</button>
-</div>
-<div class="dwrap" id="dWrap"></div>
-</div>
+  );
+}
 
-<!-- MODALS -->
-<div class="ov" id="orderOv"><div class="modal"><div class="mhdr"><h3>✅ Place Your Order</h3><button class="mclose" onclick="closeOrder()">✕</button></div><div class="mbody" id="orderBody"></div></div></div>
-<div class="cov" id="cov" onclick="closeCart()"></div>
-<div class="cdr" id="cdr"><div class="cdhdr"><h3>🛒 Shopping Cart</h3><button class="mclose" onclick="closeCart()">✕</button></div><div class="citems" id="citems"></div><div class="cft" id="cft"></div></div>
-<div class="ov" id="wishOv"><div class="modal" style="max-width:540px;"><div class="mhdr"><h3>♡ My Wishlist</h3><button class="mclose" onclick="closeWish()">✕</button></div><div style="padding:18px;" id="wishCont"></div></div></div>
+function CartDrawer({ cart, onClose, onRemove }) {
+  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  return (
+    <div onClick={onClose} style={{
+      position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 900, backdropFilter: "blur(8px)",
+    }}>
+      <div onClick={e => e.stopPropagation()} style={{
+        position: "absolute", right: 0, top: 0, bottom: 0, width: 380,
+        background: "linear-gradient(180deg, rgba(5,5,20,0.99) 0%, rgba(10,5,30,0.99) 100%)",
+        borderLeft: "1px solid rgba(0,245,255,0.15)",
+        boxShadow: "-20px 0 60px rgba(0,0,0,0.8)",
+        display: "flex", flexDirection: "column",
+      }}>
+        <div style={{ padding: "24px 24px 16px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <h2 style={{ color: "#fff", fontSize: 20, fontWeight: 700, margin: 0 }}>🛒 Your Cart ({cart.length})</h2>
+            <button onClick={onClose} style={{ background: "none", border: "none", color: "#64748b", fontSize: 20, cursor: "pointer" }}>×</button>
+          </div>
+        </div>
 
-<div class="toast" id="toast"></div>
+        <div style={{ flex: 1, overflowY: "auto", padding: 24 }}>
+          {cart.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "60px 0" }}>
+              <div style={{ fontSize: 60, marginBottom: 16 }}>🛒</div>
+              <p style={{ color: "#64748b" }}>Your cart is empty</p>
+            </div>
+          ) : cart.map((item, i) => (
+            <div key={i} style={{
+              background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)",
+              borderRadius: 12, padding: 14, marginBottom: 12, display: "flex", gap: 12, alignItems: "center",
+            }}>
+              <span style={{ fontSize: 36 }}>{item.emoji}</span>
+              <div style={{ flex: 1 }}>
+                <p style={{ color: "#fff", fontSize: 13, fontWeight: 600, margin: 0 }}>{item.name}</p>
+                <p style={{ color: "#00f5ff", fontSize: 14, fontWeight: 700, margin: "4px 0 0" }}>Rs. {(item.price * item.qty).toLocaleString()}</p>
+                <p style={{ color: "#64748b", fontSize: 11, margin: 0 }}>Qty: {item.qty}</p>
+              </div>
+              <button onClick={() => onRemove(i)} style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", color: "#ef4444", width: 30, height: 30, borderRadius: "50%", cursor: "pointer", fontSize: 14 }}>×</button>
+            </div>
+          ))}
+        </div>
 
-<script>
-// ═══ 3D ANIMATED BACKGROUND ═══
-(function(){
-  const c=document.getElementById('bgCanvas');
-  const ctx=c.getContext('2d');
-  let W,H;
-  const resize=()=>{W=c.width=window.innerWidth;H=c.height=window.innerHeight;};
-  window.addEventListener('resize',resize);resize();
-  let mx=W/2,my=H/2;
-  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
-  const N=100;
-  const pts=Array.from({length:N},()=>({
-    x:Math.random()*W,y:Math.random()*H,z:Math.random()*600+100,
-    vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,vz:(Math.random()-.5)*1.2,
-    c:Math.random()<.45?'139,92,246':Math.random()<.5?'244,114,182':'34,211,238'
-  }));
-  function project(x,y,z){const f=500/(z+500);return{x:W/2+(x-W/2)*f,y:H/2+(y-H/2)*f,s:f};}
-  function draw(){
-    ctx.clearRect(0,0,W,H);
-    pts.forEach(p=>{
-      p.x+=p.vx+(mx-W/2)*0.00004;p.y+=p.vy+(my-H/2)*0.00004;p.z+=p.vz;
-      if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;if(p.z<0)p.z=600;if(p.z>600)p.z=0;
-      const pr=project(p.x,p.y,p.z);
-      const al=pr.s*0.55*Math.min(1,(600-p.z)/300);
-      ctx.beginPath();ctx.arc(pr.x,pr.y,pr.s*2,0,Math.PI*2);
-      ctx.fillStyle=`rgba(${p.c},${al*0.75})`;ctx.fill();
+        {cart.length > 0 && (
+          <div style={{ padding: 24, borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+              <span style={{ color: "#94a3b8" }}>Subtotal</span>
+              <span style={{ color: "#fff", fontWeight: 700 }}>Rs. {total.toLocaleString()}</span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 20 }}>
+              <span style={{ color: "#94a3b8" }}>Delivery</span>
+              <span style={{ color: "#22c55e", fontWeight: 600 }}>{total >= 2000 ? "FREE" : "Rs. 200"}</span>
+            </div>
+            <button style={{
+              width: "100%", padding: "16px 0", borderRadius: 14,
+              background: "linear-gradient(135deg, #00f5ff, #7c3aed)",
+              border: "none", color: "#fff", fontWeight: 800, fontSize: 16, cursor: "pointer",
+              boxShadow: "0 0 30px rgba(0,245,255,0.3)",
+            }}>⚡ CHECKOUT NOW — COD</button>
+            <p style={{ color: "#64748b", fontSize: 12, textAlign: "center", marginTop: 12 }}>🔒 Secure Checkout • 💵 Cash on Delivery</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default function NestKart() {
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [cart, setCart] = useState([]);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [search, setSearch] = useState("");
+  const [shoppers] = useState(2344);
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const filtered = PRODUCTS.filter(p =>
+    (activeCategory === "All" || p.category === activeCategory) &&
+    (search === "" || p.name.toLowerCase().includes(search.toLowerCase()))
+  );
+
+  const addToCart = (product, qty = 1) => {
+    setCart(c => {
+      const ex = c.findIndex(i => i.id === product.id);
+      if (ex >= 0) {
+        const nc = [...c];
+        nc[ex] = { ...nc[ex], qty: nc[ex].qty + qty };
+        return nc;
+      }
+      return [...c, { ...product, qty }];
     });
-    for(let i=0;i<pts.length;i++){for(let j=i+1;j<pts.length;j++){
-      const d=Math.hypot(pts[i].x-pts[j].x,pts[i].y-pts[j].y);
-      if(d<110){const pa=project(pts[i].x,pts[i].y,pts[i].z),pb=project(pts[j].x,pts[j].y,pts[j].z);
-        const al=(1-d/110)*0.07;ctx.beginPath();ctx.moveTo(pa.x,pa.y);ctx.lineTo(pb.x,pb.y);
-        ctx.strokeStyle=`rgba(139,92,246,${al})`;ctx.lineWidth=.5;ctx.stroke();}
-    }}
-    requestAnimationFrame(draw);
-  }
-  draw();
-})();
+  };
 
-// ═══ CURSOR ═══
-(function(){
-  const cur=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
-  let tx=0,ty=0,cx=0,cy=0;
-  document.addEventListener('mousemove',e=>{tx=e.clientX;ty=e.clientY;cur.style.left=tx+'px';cur.style.top=ty+'px';});
-  function anim(){cx+=(tx-cx)*.1;cy+=(ty-cy)*.1;ring.style.left=cx+'px';ring.style.top=cy+'px';requestAnimationFrame(anim);}
-  anim();
-  document.addEventListener('mousedown',()=>{cur.style.width='20px';cur.style.height='20px';});
-  document.addEventListener('mouseup',()=>{cur.style.width='14px';cur.style.height='14px';});
-})();
+  const removeFromCart = (idx) => setCart(c => c.filter((_, i) => i !== idx));
 
-// ═══ DATA ═══
-const EM={'Kitchen Tools':'🍳','Home Decor':'🏠','Gadgets':'🔧','Organizers':'🧺','Smart Lights':'💡','Cleaning':'🧹','Clothing':'👗','Electronics':'📱','Shoes':'👟','Beauty':'💄','Other':'📦'};
-const CATS=['all','Kitchen Tools','Home Decor','Gadgets','Clothing','Shoes','Electronics','Beauty','Smart Lights','Organizers','Cleaning','Other'];
-const CITIES=['Karachi','Lahore','Islamabad','Rawalpindi','Faisalabad','Multan','Peshawar','Quetta','Sialkot','Gujranwala','Hyderabad','Abbottabad','Mardan','Bahawalpur','Sargodha','Other'];
+  const totalCartItems = cart.reduce((s, i) => s + i.qty, 0);
 
-const POPUP_NAMES=['Ayesha','Muhammad Ali','Fatima','Hassan','Sana','Bilal','Zara','Omar','Nadia','Imran','Alia','Kamran','Rabia','Tariq','Hira'];
-const POPUP_CITIES=['Lahore','Karachi','Islamabad','Faisalabad','Multan','Peshawar','Rawalpindi','Quetta','Sialkot'];
-const POPUP_MSGS=['just placed an order! 🎉','added to cart 🛒','just bought this! ✅','ordered with COD 💰'];
+  const S = {
+    page: {
+      background: "#020210",
+      minHeight: "100vh",
+      fontFamily: "'Rajdhani', 'Orbitron', system-ui, sans-serif",
+      color: "#fff",
+      position: "relative",
+      overflow: "hidden",
+    },
+    navbar: {
+      position: "fixed", top: 0, left: 0, right: 0, zIndex: 500,
+      background: scrollY > 50 ? "rgba(2,2,16,0.95)" : "rgba(2,2,16,0.7)",
+      backdropFilter: "blur(20px)",
+      borderBottom: "1px solid rgba(0,245,255,0.1)",
+      boxShadow: scrollY > 50 ? "0 0 40px rgba(0,0,0,0.8)" : "none",
+      transition: "all 0.3s",
+      padding: "0 32px",
+      height: 64,
+      display: "flex", alignItems: "center", justifyContent: "space-between",
+    },
+  };
 
-const AVCOLORS=['#8b5cf6','#ec4899','#10b981','#f59e0b','#3b82f6','#ef4444','#06b6d4','#84cc16'];
+  return (
+    <div style={S.page}>
+      {/* Google Font import via style tag */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #020210; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #020210; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(#00f5ff, #7c3aed); border-radius: 4px; }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+        @keyframes pulse-glow { 0%,100%{box-shadow:0 0 20px rgba(0,245,255,0.3)} 50%{box-shadow:0 0 40px rgba(0,245,255,0.6)} }
+        @keyframes slide-in { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes spin-slow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        @keyframes marquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+      `}</style>
 
-const REVIEWS_POOL=[
-  {n:'Ayesha M.',c:'Lahore',r:5,t:'"Absolutely amazing quality! Bohot achi product hai, bilkul waisi hai jaise photo mein. Fast delivery bhi mili!"',ti:'2 hours ago',i:'A'},
-  {n:'Muhammad Ali',c:'Karachi',r:5,t:'"Best online shopping experience in Pakistan! Product 100% authentic hai. COD ka option bahut convenient hai."',ti:'5 hours ago',i:'M'},
-  {n:'Fatima Z.',c:'Islamabad',r:5,t:'"Pehli baar order kiya tha, soch rahi thi fake hoga. Lekin wow! Masha Allah quality bohot achi hai!"',ti:'1 day ago',i:'F'},
-  {n:'Hassan R.',c:'Faisalabad',r:5,t:'"3 baar order kar chuka hoon. Har baar delivery time pe aati hai aur quality guaranteed. Highly recommend!"',ti:'1 day ago',i:'H'},
-  {n:'Sana K.',c:'Multan',r:5,t:'"Premium quality at fair price. Packaging bhi bohot achi thi. NestKart se hi shopping karunga aagey bhi!"',ti:'2 days ago',i:'S'},
-  {n:'Bilal A.',c:'Rawalpindi',r:5,t:'"7-day return policy ne mujhe confident banaya. Product exactly waisa aaya jaise describe kiya tha. Zabardast!"',ti:'3 days ago',i:'B'},
-  {n:'Zara N.',c:'Quetta',r:5,t:'"Delivery super fast thi! 4 din mein Quetta aa gayi. Quality bohot achi hai, price bhi reasonable."',ti:'3 days ago',i:'Z'},
-  {n:'Imran K.',c:'Peshawar',r:5,t:'"Peshawar mein bhi delivery aati hai, trust ho gaya NestKart pe. Product ekdum original hai!"',ti:'4 days ago',i:'I'}
-];
-
-const TMSGS=['Ayesha from Lahore ordered Premium Kitchen Set 🍳','Muhammad from Karachi bought Designer Dress 👗','Fatima from Islamabad ordered Smart LED Strip 💡','Hassan from Peshawar purchased Premium Kurta 👔','Sana from Multan bought Beauty Kit 💄','Ali from Rawalpindi ordered Wireless Headphones 🎧','Zara from Quetta purchased Premium Shoes 👟','Omar from Sialkot bought Home Decor Bundle 🏠','Nadia from Multan ordered Silk Fabric ✨','Imran from Lahore bought Smart Watch ⌚','Rabia from Gujranwala ordered Organizer Set 🧺','Kamran from Hyderabad bought Cleaning Kit 🧹'];
-
-const SALES5H=[
-  {cat:'👗 Clothing',sold:47,rev:182400},
-  {cat:'👟 Shoes',sold:23,rev:94300},
-  {cat:'📱 Electronics',sold:19,rev:215600},
-  {cat:'💄 Beauty',sold:35,rev:78200},
-  {cat:'🍳 Kitchen',sold:28,rev:112800},
-  {cat:'🏠 Home Decor',sold:16,rev:48400},
-  {cat:'🔧 Gadgets',sold:21,rev:98100},
-  {cat:'🎯 ALL TODAY',sold:189,rev:829800}
-];
-
-let prods=[],cart=JSON.parse(localStorage.getItem('nk7_cart')||'[]'),wish=JSON.parse(localStorage.getItem('nk7_wish')||'[]');
-let curCat='all',cProd=null,cPack=1,cSize='',cQty=1,cImg=0;
-let pts2=parseInt(localStorage.getItem('nk7_pts')||'0');
-
-// RANDOM DISCOUNT: 30–70% for each product
-function getDisc(p){
-  const seed=p.id||1;
-  const discounts=[30,35,40,45,50,55,60,65,70];
-  return discounts[seed % discounts.length];
-}
-
-// ═══ FIREBASE ═══
-window.addEventListener('fbReady',()=>{
-  window.fsSnap(window.fsCol(window.db,'products'),snap=>{
-    prods=snap.docs.map(d=>({...d.data(),_docId:d.id}));
-    prods.sort((a,b)=>b.id-a.id);
-    renderCatCards();renderGrid(getCurProds());buildCats();
-    const stdEl=document.getElementById('soldToday');
-    if(stdEl)stdEl.textContent=Math.floor(prods.length*3.7+189);
-  });
-});
-
-// ═══ PAGES ═══
-function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
-function showStore(){showPage('storePage');buildCats();renderGrid(getCurProds());}
-
-// ═══ CATEGORIES ═══
-function buildCats(){
-  document.getElementById('catBar').innerHTML=CATS.map(c=>`<button class="cpill ${curCat===c?'on':''}" onclick="goCat('${c}')">${c==='all'?'✨ All':EM[c]+' '+c}</button>`).join('');
-}
-function goCat(c){
-  curCat=c;buildCats();
-  const t=document.getElementById('secT');
-  if(t)t.innerHTML=c==='all'?'All <em>Products</em>':`<em>${c}</em>`;
-  renderGrid(getCurProds());
-  document.getElementById('shopSec')?.scrollIntoView({behavior:'smooth'});
-}
-function getCurProds(){return curCat==='all'?prods:prods.filter(p=>p.cat===curCat);}
-function renderCatCards(){
-  const el=document.getElementById('catGrid');if(!el)return;
-  el.innerHTML=CATS.filter(c=>c!=='all').map(c=>`<div class="ccard" onclick="goCat('${c}')"><span class="ccard-em">${EM[c]||'📦'}</span><div class="ccard-n">${c}</div><div class="ccard-c">${prods.filter(p=>p.cat===c).length} Products</div></div>`).join('');
-}
-
-// ═══ SEARCH & SORT ═══
-function doSearch(){const q=document.getElementById('srchIn').value.toLowerCase();renderGrid(q?prods.filter(p=>(p.name||'').toLowerCase().includes(q)||(p.desc||'').toLowerCase().includes(q)):getCurProds());}
-function doSearchVal(q){renderGrid(q?prods.filter(p=>(p.name||'').toLowerCase().includes(q.toLowerCase())):getCurProds());}
-function doSort(){
-  let l=[...getCurProds()];
-  const v=document.getElementById('sortSel')?.value;
-  if(v==='low')l.sort((a,b)=>a.p1-b.p1);
-  else if(v==='high')l.sort((a,b)=>b.p1-a.p1);
-  else if(v==='rating')l.sort((a,b)=>(b.rat||0)-(a.rat||0));
-  else if(v==='newest')l.sort((a,b)=>b.id-a.id);
-  renderGrid(l);
-}
-
-// ═══ HELPERS ═══
-function fmt(n){const num=Math.round(Number(n));if(isNaN(num)||num<=0)return'PKR 0';return'PKR '+num.toLocaleString('en-US');}
-function fmtNum(n){return Math.round(n).toLocaleString('en-US');}
-function st(r){r=parseFloat(r)||4.5;let s='';for(let i=1;i<=5;i++)s+=i<=Math.floor(r)?'★':'☆';return s;}
-function isW(id){return wish.includes(id);}
-function sold5h(p){return Math.floor(4+Math.random()*30+((p.p1||0)/5000)*12);}
-// Viewers per product: 30–100
-function getViewers(p){const seed=(p.id||1);return 30+((seed*17)%71);}
-// Random avatar color
-function avatarColor(n){return AVCOLORS[n.charCodeAt(0)%AVCOLORS.length];}
-// Get product reviews (fake but product-linked)
-function getProdReviews(p){
-  const base=[
-    {n:'Ayesha',c:'Lahore',r:5,t:`"Masha Allah! ${p.name} bilkul perfect hai. Quality bohot achi hai, COD pe mangaya tha aur satisfied hoon 100%!"`},
-    {n:'Bilal',c:'Karachi',r:5,t:`"${p.name} ekdum original aaya. Packaging bhi achi thi. NestKart se phir order karunga!"`},
-    {n:'Fatima',c:'Multan',r:5,t:`"Bohot achi quality hai! ${p.name} exactly waisa aaya jaise photo mein tha. Fast delivery bhi mili!"`},
-    {n:'Hassan',c:'Islamabad',r:5,t:`"Pehle darr tha lekin try kiya toh mind blown ho gaya. ${p.name} bohot achi hai. Highly recommended!"`},
-    {n:'Sana',c:'Faisalabad',r:4,t:`"Overall good product. ${p.name} ki quality theek hai. Price bhi reasonable hai. 4/5 doonga!"`},
-    {n:'Usman',c:'Rawalpindi',r:5,t:`"3rd order NestKart se. ${p.name} perfect condition mein aya. Trust worthy store hai ye!"`},
-  ];
-  return base.slice(0,4);
-}
-
-// ═══ STATS BAR ═══
-function renderStatsBar(){
-  const el=document.getElementById('statsBar');if(!el)return;
-  el.innerHTML=SALES5H.map(s=>`
-    <div class="stat-item">
-      <div class="stat-val">${fmtNum(s.sold)}</div>
-      <div class="stat-lbl">${s.cat} Sold</div>
-      <div class="stat-trend">↑ Last 5 Hours · ${fmt(s.rev)}</div>
-    </div>`).join('');
-}
-renderStatsBar();
-setInterval(()=>{
-  SALES5H.forEach(s=>{s.sold+=Math.floor(Math.random()*3);s.rev+=Math.floor(Math.random()*9000);});
-  renderStatsBar();
-  const se=document.getElementById('soldToday');
-  if(se)se.textContent=parseInt(se.textContent||'0')+(Math.floor(Math.random()*3));
-},28000);
-
-// ═══ PRODUCT GRID ═══
-function renderGrid(list){
-  const g=document.getElementById('pgrid');if(!g)return;
-  const ce=document.getElementById('pcnt');if(ce)ce.textContent=list.length+' Products';
-  const fb=document.getElementById('fbtns');
-  if(fb){
-    const bs=[...new Set(getCurProds().map(p=>p.badge).filter(Boolean))];
-    fb.innerHTML=`<button style="background:var(--purple);color:#fff;border:none;padding:6px 14px;font-size:11px;font-weight:800;border-radius:8px;cursor:pointer;" onclick="renderGrid(getCurProds())">All</button>`+
-      bs.map(b=>`<button style="background:rgba(255,255,255,.04);color:var(--muted);border:1px solid var(--border);padding:6px 12px;font-size:11px;font-weight:700;border-radius:8px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--pink)';this.style.color='#fff'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'" onclick="renderGrid(getCurProds().filter(p=>p.badge==='${b}'))">${b}</button>`).join('');
-  }
-  if(!list.length){
-    g.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--dim);"><div style="font-size:60px;margin-bottom:14px;opacity:.3;">🔍</div><p>No products found</p></div>`;
-    return;
-  }
-  g.innerHTML=list.map(p=>{
-    const disc=getDisc(p);
-    const calcOld=Math.round(p.p1/(1-disc/100));
-    const sp=Math.floor(25+((p.id||1)*13)%60);
-    const vw=getViewers(p);
-    const s5=sold5h(p);
-    const badgeClass=p.badge&&p.badge.toLowerCase().includes('new')?'new-b':p.badge&&p.badge.toLowerCase().includes('hot')?'hot-b':p.badge&&p.badge.toLowerCase().includes('prem')?'prem-b':'best-b';
-    // Time urgency: random remaining count
-    const leftCount=Math.floor(2+Math.random()*8);
-    return`<div class="pcard" onmousemove="c3d(event,this)" onmouseleave="rc3d(this)">
-      <div class="disc-sticker"><div class="disc-sticker-inner">${disc}%<span>OFF</span></div></div>
-      ${p.badge?`<div class="badge-ribb ${badgeClass}">${p.badge}</div>`:''}
-      <div class="pimg-wrap" onclick="openDetail(${p.id})">
-        ${p.images&&p.images[0]?`<img src="${p.images[0]}" loading="lazy" alt="${p.name}">`:`<div class="peph">${EM[p.cat]||'📦'}</div>`}
-        <button class="pwish ${isW(p.id)?'on':''}" onclick="event.stopPropagation();tWish(${p.id})">${isW(p.id)?'♥':'♡'}</button>
-        <div class="pviewers"><span class="vd"></span>${vw} viewing</div>
-        <div class="psold-badge">🔥 ${s5} sold · 5h</div>
-        <button class="qadd" onclick="event.stopPropagation();qAdd(${p.id})">+ Quick Add to Cart</button>
+      {/* Animated background */}
+      <div style={{ position: "fixed", inset: 0, zIndex: 0, overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 20% 30%, rgba(124,58,237,0.12) 0%, transparent 60%)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 80% 70%, rgba(0,245,255,0.08) 0%, transparent 60%)" }} />
+        <Particles />
       </div>
-      <div class="pbody" onclick="openDetail(${p.id})">
-        <div class="pcat">${p.cat}</div>
-        <div class="pname">${p.name}</div>
-        <div class="pstars">${st(p.rat)}</div>
-        <div class="prevs">(${(p.rev||0).toLocaleString()} verified reviews)</div>
-        <div class="pprices">
-          <span class="pp">${fmt(p.p1)}</span>
-          <span class="pold">${fmt(calcOld)}</span>
-          <span class="poff">-${disc}%</span>
+
+      {/* NAVBAR */}
+      <nav style={S.navbar}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg, #00f5ff, #7c3aed)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>🏠</div>
+          <span style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 20, fontWeight: 900, background: "linear-gradient(135deg, #00f5ff, #7c3aed)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>NESTKART</span>
+          <span style={{ color: "#64748b", fontSize: 11, letterSpacing: 2, marginTop: 2 }}>LUXURY</span>
         </div>
-        <div class="urgency-row">
-          <span class="urg-badge urg-fire">🔥 ${leftCount} left only!</span>
-          <span class="urg-badge urg-clock">⏰ Offer ends soon</span>
+
+        <div style={{ flex: 1, maxWidth: 500, margin: "0 40px", position: "relative" }}>
+          <input
+            value={search} onChange={e => setSearch(e.target.value)}
+            placeholder="Search products..."
+            style={{
+              width: "100%", padding: "10px 20px 10px 44px", borderRadius: 50,
+              background: "rgba(255,255,255,0.05)", border: "1px solid rgba(0,245,255,0.2)",
+              color: "#fff", fontSize: 14, outline: "none",
+              boxShadow: "0 0 20px rgba(0,245,255,0.05)",
+            }}
+          />
+          <span style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", fontSize: 18, color: "#00f5ff" }}>🔍</span>
         </div>
-        <div class="pstock" style="margin-top:8px;"><div class="sbar"><div class="sbarin ${sp<35?'low':'ok'}" style="width:${sp}%"></div></div><span class="stxt">${sp<35?'⚠ Low Stock':'In Stock'}</span></div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div style={{ textAlign: "right" }}>
+            <div style={{ color: "#64748b", fontSize: 10, letterSpacing: 1 }}>SHOPPING NOW</div>
+            <LiveCounter base={shoppers} label="shoppers" />
+          </div>
+          <button onClick={() => setCartOpen(true)} style={{
+            position: "relative", background: "rgba(0,245,255,0.08)", border: "1px solid rgba(0,245,255,0.3)",
+            borderRadius: 12, padding: "8px 16px", color: "#00f5ff", cursor: "pointer",
+            display: "flex", alignItems: "center", gap: 8, fontWeight: 700, fontSize: 14,
+            animation: totalCartItems > 0 ? "pulse-glow 2s infinite" : "none",
+          }}>
+            🛒 Cart
+            {totalCartItems > 0 && (
+              <span style={{ background: "linear-gradient(135deg, #00f5ff, #7c3aed)", color: "#fff", fontSize: 11, fontWeight: 800, width: 20, height: 20, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>{totalCartItems}</span>
+            )}
+          </button>
+        </div>
+      </nav>
+
+      {/* Ticker tape */}
+      <div style={{ position: "relative", zIndex: 10, marginTop: 64, background: "linear-gradient(90deg, #7c3aed, #00f5ff, #ec4899, #7c3aed)", height: 36, overflow: "hidden", display: "flex", alignItems: "center" }}>
+        <div style={{ display: "flex", gap: "60px", animation: "marquee 20s linear infinite", whiteSpace: "nowrap", fontSize: 12, fontWeight: 700, color: "#fff", letterSpacing: 2 }}>
+          {["⚡ FREE DELIVERY ON ALL ORDERS ABOVE RS. 2000", "💵 100% CASH ON DELIVERY", "🔒 SECURE CHECKOUT", "🚀 SAME DAY DISPATCH", "✅ VERIFIED PRODUCTS ONLY", "🌟 TRUSTED BY 50,000+ CUSTOMERS", "⚡ FREE DELIVERY ON ALL ORDERS ABOVE RS. 2000", "💵 100% CASH ON DELIVERY", "🔒 SECURE CHECKOUT", "🚀 SAME DAY DISPATCH"].join("     •     ")}
+        </div>
       </div>
-    </div>`;
-  }).join('');
-}
-function c3d(e,el){const r=el.getBoundingClientRect();const x=(e.clientX-r.left)/r.width-.5;const y=(e.clientY-r.top)/r.height-.5;el.style.transform=`perspective(700px) rotateY(${x*13}deg) rotateX(${-y*9}deg) translateY(-10px) scale(1.02)`;}
-function rc3d(el){el.style.transform='';}
-function qAdd(id){const p=prods.find(x=>x.id===id);if(!p)return;addToCart(p,1,p.p1,'');showToast('✅ Added to cart!','ok');}
 
-// ═══ WISHLIST ═══
-function tWish(id){
-  const i=wish.indexOf(id);
-  if(i===-1){wish.push(id);showToast('♥ Saved to wishlist!','info');}
-  else{wish.splice(i,1);showToast('Removed from wishlist','');}
-  localStorage.setItem('nk7_wish',JSON.stringify(wish));updWB();renderGrid(getCurProds());
-}
-function updWB(){
-  const n=wish.length;
-  [document.getElementById('wb1'),document.getElementById('wb2')].forEach(el=>{if(el){el.textContent=n;el.classList.toggle('show',n>0);}});
-}
-function openWish(){
-  const wc=document.getElementById('wishCont');
-  const wp=prods.filter(p=>wish.includes(p.id));
-  if(!wp.length){wc.innerHTML='<div style="text-align:center;padding:40px;color:var(--dim);"><div style="font-size:48px;margin-bottom:12px;">♡</div><p>Your wishlist is empty</p></div>';}
-  else{
-    wc.innerHTML=`<div class="wish-grid">`+
-      wp.map(p=>`<div style="background:var(--bg3);border-radius:14px;overflow:hidden;cursor:pointer;border:1px solid var(--border);transition:all .2s;" onclick="closeWish();openDetail(${p.id})" onmouseover="this.style.borderColor='var(--pink)'" onmouseout="this.style.borderColor='var(--border)'">
-        <div style="height:120px;overflow:hidden;background:var(--card);display:flex;align-items:center;justify-content:center;">
-          ${p.images&&p.images[0]?`<img src="${p.images[0]}" style="width:100%;height:100%;object-fit:cover;">`:`<span style="font-size:38px;">${EM[p.cat]||'📦'}</span>`}
+      <div style={{ position: "relative", zIndex: 10 }}>
+
+        {/* HERO SECTION */}
+        <div style={{ minHeight: "90vh", display: "flex", alignItems: "center", padding: "60px 40px", position: "relative", overflow: "hidden" }}>
+          {/* Grid lines */}
+          <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
+
+          {/* Glow orbs */}
+          <div style={{ position: "absolute", top: "20%", right: "15%", width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(124,58,237,0.25) 0%, transparent 70%)", filter: "blur(40px)", animation: "float 6s ease-in-out infinite" }} />
+          <div style={{ position: "absolute", bottom: "10%", left: "10%", width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,245,255,0.15) 0%, transparent 70%)", filter: "blur(40px)", animation: "float 8s ease-in-out infinite reverse" }} />
+
+          <div style={{ maxWidth: 1400, margin: "0 auto", width: "100%", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
+            {/* Left text */}
+            <div style={{ animation: "slide-in 0.8s ease-out" }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,245,255,0.08)", border: "1px solid rgba(0,245,255,0.25)", borderRadius: 50, padding: "6px 16px", marginBottom: 24 }}>
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#00f5ff", display: "inline-block", animation: "pulse-glow 1.5s infinite" }} />
+                <span style={{ color: "#00f5ff", fontSize: 12, fontWeight: 700, letterSpacing: 2 }}>PAKISTAN'S FUTURE OF SHOPPING</span>
+              </div>
+
+              <h1 style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 64, fontWeight: 900, lineHeight: 1.05, marginBottom: 24 }}>
+                <span style={{ display: "block", background: "linear-gradient(135deg, #ffffff, #a0aec0)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>THE FUTURE</span>
+                <span style={{ display: "block", background: "linear-gradient(135deg, #00f5ff, #7c3aed)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>OF LUXURY</span>
+                <span style={{ display: "block", background: "linear-gradient(135deg, #ffffff, #a0aec0)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>SHOPPING</span>
+              </h1>
+
+              <p style={{ color: "#94a3b8", fontSize: 18, lineHeight: 1.8, marginBottom: 40, maxWidth: 480 }}>
+                Premium products. Cinematic experience. Cash on Delivery to your doorstep. Welcome to NestKart — where luxury meets Pakistan.
+              </p>
+
+              <div style={{ display: "flex", gap: 16, marginBottom: 48 }}>
+                <button onClick={() => document.getElementById("products")?.scrollIntoView({ behavior: "smooth" })} style={{
+                  padding: "16px 40px", borderRadius: 14, border: "none",
+                  background: "linear-gradient(135deg, #00f5ff, #7c3aed)",
+                  color: "#fff", fontWeight: 800, fontSize: 16, cursor: "pointer",
+                  boxShadow: "0 0 40px rgba(0,245,255,0.4), 0 20px 40px rgba(0,0,0,0.3)",
+                  fontFamily: "'Orbitron', sans-serif", letterSpacing: 1,
+                }}>SHOP NOW ⚡</button>
+                <button style={{
+                  padding: "16px 40px", borderRadius: 14,
+                  border: "2px solid rgba(0,245,255,0.4)",
+                  background: "rgba(0,245,255,0.05)",
+                  color: "#00f5ff", fontWeight: 700, fontSize: 16, cursor: "pointer",
+                  fontFamily: "'Orbitron', sans-serif", letterSpacing: 1,
+                }}>EXPLORE →</button>
+              </div>
+
+              {/* Trust stats */}
+              <div style={{ display: "flex", gap: 32 }}>
+                {[["50K+", "Happy Customers"], ["100%", "Cash on Delivery"], ["3-5 Days", "Fast Delivery"]].map(([n, l]) => (
+                  <div key={l}>
+                    <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 22, fontWeight: 900, background: "linear-gradient(135deg, #00f5ff, #7c3aed)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{n}</div>
+                    <div style={{ color: "#64748b", fontSize: 12 }}>{l}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right — featured product showcase */}
+            <div style={{ position: "relative", display: "flex", justifyContent: "center" }}>
+              {/* Rotating ring */}
+              <div style={{ position: "absolute", width: 480, height: 480, borderRadius: "50%", border: "1px solid rgba(0,245,255,0.1)", animation: "spin-slow 20s linear infinite" }} />
+              <div style={{ position: "absolute", width: 380, height: 380, borderRadius: "50%", border: "1px dashed rgba(124,58,237,0.15)", animation: "spin-slow 15s linear infinite reverse" }} />
+
+              {/* Main holographic card */}
+              <div onClick={() => setSelectedProduct(PRODUCTS[0])} style={{
+                width: 340, background: "linear-gradient(135deg, rgba(0,245,255,0.08), rgba(124,58,237,0.08))",
+                border: "1px solid rgba(0,245,255,0.25)", borderRadius: 28, padding: 40,
+                backdropFilter: "blur(20px)", cursor: "pointer",
+                boxShadow: "0 0 60px rgba(0,245,255,0.1), 0 0 120px rgba(124,58,237,0.08), inset 0 1px 0 rgba(255,255,255,0.1)",
+                animation: "float 4s ease-in-out infinite",
+                position: "relative", zIndex: 2,
+              }}>
+                <div style={{ textAlign: "center", marginBottom: 24 }}>
+                  <span style={{ fontSize: 110, display: "block", filter: "drop-shadow(0 0 30px rgba(0,245,255,0.8))", animation: "float 3s ease-in-out infinite reverse" }}>🫙</span>
+                </div>
+                <div style={{ marginBottom: 4 }}>
+                  <span style={{ background: "linear-gradient(135deg, #00f5ff, #7c3aed)", color: "#fff", fontSize: 10, fontWeight: 800, padding: "3px 10px", borderRadius: 20, letterSpacing: 2 }}>BEST SELLER</span>
+                </div>
+                <h3 style={{ color: "#fff", fontSize: 20, fontWeight: 700, marginBottom: 8 }}>AeroBlend Pro X9</h3>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 16 }}>
+                  <StarRating rating={4.8} />
+                  <span style={{ color: "#94a3b8", fontSize: 12 }}>4.8 (2,341)</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <span style={{ color: "#00f5ff", fontSize: 24, fontWeight: 800 }}>Rs. 12,999</span>
+                    <span style={{ color: "#4b5563", fontSize: 14, textDecoration: "line-through", marginLeft: 8 }}>18,999</span>
+                  </div>
+                  <button onClick={e => { e.stopPropagation(); addToCart(PRODUCTS[0]); }} style={{
+                    padding: "8px 16px", borderRadius: 10,
+                    background: "linear-gradient(135deg, #00f5ff, #7c3aed)",
+                    border: "none", color: "#fff", fontWeight: 700, fontSize: 12, cursor: "pointer",
+                  }}>ADD →</button>
+                </div>
+                <div style={{ marginTop: 12, padding: "8px 12px", borderRadius: 8, background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.2)" }}>
+                  <span style={{ color: "#f59e0b", fontSize: 12 }}>🔥 <LiveCounter base={187} label="viewing this" /></span>
+                </div>
+              </div>
+
+              {/* Floating mini cards */}
+              {[
+                { product: PRODUCTS[2], x: -160, y: -60 },
+                { product: PRODUCTS[5], x: 180, y: 80 },
+              ].map(({ product, x, y }) => (
+                <div key={product.id} onClick={() => setSelectedProduct(product)} style={{
+                  position: "absolute", width: 140,
+                  background: "rgba(5,5,20,0.9)", border: "1px solid rgba(0,245,255,0.15)",
+                  borderRadius: 16, padding: 16, cursor: "pointer",
+                  backdropFilter: "blur(20px)",
+                  transform: `translate(${x}px, ${y}px)`,
+                  boxShadow: "0 0 20px rgba(0,0,0,0.5)",
+                  zIndex: 3,
+                  animation: `float ${4 + product.id}s ease-in-out infinite`,
+                }}>
+                  <span style={{ fontSize: 36, display: "block", textAlign: "center", marginBottom: 8 }}>{product.emoji}</span>
+                  <p style={{ color: "#fff", fontSize: 12, fontWeight: 600, textAlign: "center", marginBottom: 4 }}>{product.name.split(" ").slice(0, 2).join(" ")}</p>
+                  <p style={{ color: "#00f5ff", fontSize: 13, fontWeight: 800, textAlign: "center" }}>Rs. {product.price.toLocaleString()}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-        <div style="padding:10px;">
-          <div style="font-size:11px;font-weight:700;color:var(--white);margin-bottom:3px;">${p.name}</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--pink);">${fmt(p.p1)}</div>
-          <button onclick="event.stopPropagation();qAdd(${p.id})" style="width:100%;margin-top:6px;background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;border:none;padding:6px;font-size:10px;font-weight:800;cursor:pointer;border-radius:7px;text-transform:uppercase;">+ Cart</button>
+
+        {/* CATEGORIES BAR */}
+        <div style={{ padding: "0 40px 40px", position: "relative" }}>
+          <div style={{ maxWidth: 1400, margin: "0 auto" }}>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+              {CATEGORIES.map(cat => (
+                <button key={cat} onClick={() => setActiveCategory(cat)} style={{
+                  padding: "10px 24px", borderRadius: 50, cursor: "pointer",
+                  background: activeCategory === cat ? "linear-gradient(135deg, #00f5ff, #7c3aed)" : "rgba(255,255,255,0.04)",
+                  border: activeCategory === cat ? "none" : "1px solid rgba(255,255,255,0.1)",
+                  color: activeCategory === cat ? "#fff" : "#94a3b8",
+                  fontWeight: activeCategory === cat ? 700 : 500,
+                  fontSize: 14, transition: "all 0.2s",
+                  boxShadow: activeCategory === cat ? "0 0 20px rgba(0,245,255,0.3)" : "none",
+                }}>{cat}</button>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>`).join('')+'</div>';
-  }
-  document.getElementById('wishOv').classList.add('open');
-}
-function closeWish(){document.getElementById('wishOv').classList.remove('open');}
 
-// ═══ DETAIL PAGE ═══
-function openDetail(id){
-  const p=prods.find(x=>x.id===id);if(!p)return;
-  cProd=p;cPack=1;cQty=1;cImg=0;cSize=p.sizes&&p.sizes.length?p.sizes[0]:'';
-  document.getElementById('brdC').textContent=p.cat;
-  document.getElementById('brdP').textContent=p.name;
-  showPage('detailPage');renderDetail();updCC();updWB();
-}
-function renderDetail(){
-  const p=cProd;if(!p)return;
-  const imgs=p.images&&p.images.length?p.images:[];
-  const disc=getDisc(p);
-  const p1=p.p1||0,pks=[{n:1,price:p1},{n:2,price:Math.round(p1*1.85)},{n:3,price:Math.round(p1*2.6)}];
-  const ap=pks.find(x=>x.n===cPack)||pks[0];
-  const calcOld=Math.round(p1/(1-disc/100));
-  const hasSz=p.sizes&&p.sizes.length>0;
-  const rel=prods.filter(x=>x.id!==p.id&&x.cat===p.cat).slice(0,6);
-  const vw=getViewers(p);
-  const s5=sold5h(p);
-  const pRevs=getProdReviews(p);
+        {/* FLASH SALE BANNER */}
+        <div style={{ padding: "0 40px 48px" }}>
+          <div style={{ maxWidth: 1400, margin: "0 auto" }}>
+            <div style={{
+              background: "linear-gradient(135deg, rgba(239,68,68,0.12) 0%, rgba(124,58,237,0.12) 100%)",
+              border: "1px solid rgba(239,68,68,0.3)",
+              borderRadius: 20, padding: "24px 40px",
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              position: "relative", overflow: "hidden",
+            }}>
+              <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(239,68,68,0.03) 20px, rgba(239,68,68,0.03) 40px)" }} />
+              <div style={{ position: "relative" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+                  <span style={{ fontSize: 28 }}>⚡</span>
+                  <span style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 24, fontWeight: 900, background: "linear-gradient(135deg, #ef4444, #f97316)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>FLASH SALE LIVE</span>
+                  <span style={{ background: "rgba(239,68,68,0.9)", color: "#fff", fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20, animation: "pulse-glow 1s infinite" }}>🔴 LIVE</span>
+                </div>
+                <p style={{ color: "#94a3b8", fontSize: 14 }}>Limited time offers — up to 40% OFF on premium products!</p>
+              </div>
+              <div style={{ textAlign: "center", position: "relative" }}>
+                <div style={{ display: "flex", gap: 8 }}>
+                  {[["02", "HRS"], ["47", "MIN"], ["33", "SEC"]].map(([n, l]) => (
+                    <div key={l} style={{ background: "rgba(0,0,0,0.4)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 10, padding: "12px 16px", textAlign: "center" }}>
+                      <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 28, fontWeight: 900, color: "#ef4444" }}>{n}</div>
+                      <div style={{ color: "#64748b", fontSize: 10, letterSpacing: 1 }}>{l}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-  document.getElementById('dWrap').innerHTML=`
-<div class="dlayout">
-  <div>
-    <div class="dmai" id="dmi">
-      <div class="disc-big">${disc}%<span class="offs">OFF</span></div>
-      ${imgs[cImg]?`<img src="${imgs[cImg]}" alt="${p.name}">`:`<div style="font-size:90px;opacity:.25;">${EM[p.cat]||'📦'}</div>`}
-    </div>
-    ${imgs.length>1?`<div class="dthumbs">${imgs.map((img,i)=>`<div class="dthumb ${i===cImg?'on':''}" onclick="swImg(${i})"><img src="${img}"></div>`).join('')}</div>`:''}
-  </div>
-  <div>
-    <div class="dbrand">${p.cat} — NestKart Premium</div>
-    <div class="dname">${p.name}</div>
-    <div class="dstrow">
-      <span class="dst">${st(p.rat)} ${parseFloat(p.rat||4.5).toFixed(1)}</span>
-      <span class="drc">${(p.rev||0).toLocaleString()} reviews</span>
-      <span class="vbdg">✓ Verified Seller</span>
-    </div>
-    <div class="d-live-viewers">
-      <span style="font-size:18px;">👁️</span>
-      <div><div class="d-live-num" id="dLiveVw">${vw}</div><div class="d-live-lbl">people viewing this right now</div></div>
-      <div class="d-live-anim">🔥</div>
-    </div>
-    <div>
-      <div class="dprice">${fmt(ap.price)}</div>
-      <div class="doldp">MRP: ${fmt(Math.round(calcOld*cPack*(cPack===1?1:cPack===2?1.85:2.6)/cPack))}</div>
-      <div class="dsave">🏷️ ${disc}% OFF — Save ${fmt(Math.round(calcOld*cPack*(cPack===1?1:cPack===2?1.85:2.6)/cPack)-ap.price)}</div>
-    </div>
-    ${hasSz?`<div class="olbl">Select Size — <strong style="color:var(--pink);">${cSize}</strong></div><div class="szopts">${p.sizes.map(s=>`<div class="szopt ${s===cSize?'on':''}" onclick="selSz('${s}')">${s}</div>`).join('')}</div>`:''}
-    <div class="olbl">Pack Size</div>
-    <div class="pkopts">${pks.map(pk=>`<div class="pkopt ${pk.n===cPack?'on':''}" onclick="selPk(${pk.n})"><div class="pklbl">Pack of ${pk.n}</div><div class="pkp">${fmt(pk.price)}</div>${pk.n>1?`<div class="pksv">Save More!</div>`:''}</div>`).join('')}</div>
-    <div class="olbl">Quantity</div>
-    <div class="qrow">
-      <button class="qb" onclick="aQty(-1)">−</button>
-      <span class="qn" id="qd">${cQty}</span>
-      <button class="qb" onclick="aQty(1)">+</button>
-      <span class="qtot">Total: <strong>${fmt(ap.price*cQty)}</strong></span>
-    </div>
-    <div class="ddel">
-      <p>✅ Cash on Delivery — Pay when you receive</p>
-      <p>🚚 3–6 Working Days — All Over Pakistan</p>
-      <p>🔄 7 Day Easy Return & Exchange</p>
-      <p>⭐ 100% Authentic — Quality Guaranteed</p>
-    </div>
-    <button class="dbuy" onclick="openOrder(${p.id},${cPack},${ap.price})">🛒 Buy Now — ${fmt(ap.price*cQty)} Cash on Delivery</button>
-    <button class="dcart" onclick="addToCart(cProd,cPack,${ap.price},cSize);showToast('✅ Added to cart!','ok')">+ Add to Cart</button>
-    <div class="dtrust">
-      <span class="dtch">✅ Genuine Product</span> &nbsp;·&nbsp;
-      <span class="dtch">🔒 Secure Order</span> &nbsp;·&nbsp;
-      <span class="dtch">📦 Safely Packed</span> &nbsp;·&nbsp;
-      <span class="dtch">🏭 Quality Checked</span>
-    </div>
-  </div>
-</div>
-${p.desc||(p.descImgs&&p.descImgs.length)?`
-<div class="descbox">
-  <div class="desbt">Product Description</div>
-  <div class="desct">${(p.desc||'').replace(/\n/g,'<br>')}</div>
-  ${p.descImgs&&p.descImgs.length?`<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;">${p.descImgs.map(img=>`<img src="${img}" style="width:150px;height:150px;object-fit:cover;border-radius:10px;border:1px solid var(--border);">`).join('')}</div>`:''}
-</div>`:''}
-<div class="drev-section">
-  <div class="sec-eye">Customer Reviews</div>
-  <h3 class="sec-t" style="font-size:22px;margin-bottom:14px;">What Buyers <em>Say</em> About This</h3>
-  <div class="drev-grid">
-    ${pRevs.map(rv=>`<div class="drev-card">
-      <div class="drev-top"><div class="drav" style="background:${avatarColor(rv.n)}">${rv.n[0]}</div><div><div class="drnm">${rv.n}</div><div class="drct">📍 ${rv.c}</div></div></div>
-      <div class="drst">${'★'.repeat(rv.r)}${'☆'.repeat(5-rv.r)}</div>
-      <div class="drtxt">${rv.t}</div>
-      <div class="drverified">✅ Verified Purchase</div>
-    </div>`).join('')}
-  </div>
-</div>
-${rel.length?`
-<div style="margin-top:44px;">
-  <div class="sec-eye">You May Also Like</div>
-  <h3 class="sec-t" style="font-size:22px;margin-bottom:14px;">Related <em>Products</em></h3>
-  <div class="relgrid">
-    ${rel.map(r=>`<div class="relcrd" onclick="openDetail(${r.id})">
-      <div class="relimg">${r.images&&r.images[0]?`<img src="${r.images[0]}">`:`<span style="font-size:36px;">${EM[r.cat]||'📦'}</span>`}</div>
-      <div class="reli"><div class="reln">${r.name}</div><div class="relp">${fmt(r.p1)}</div></div>
-    </div>`).join('')}
-  </div>
-</div>`:''}`;
+        {/* TRUST BADGES */}
+        <div style={{ padding: "0 40px 60px" }}>
+          <div style={{ maxWidth: 1400, margin: "0 auto" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+              {[
+                { icon: "💵", title: "Cash on Delivery", desc: "Pay when you receive" },
+                { icon: "🔒", title: "Secure Checkout", desc: "SSL encrypted & safe" },
+                { icon: "🚀", title: "Fast Dispatch", desc: "Same day processing" },
+                { icon: "✅", title: "Verified Products", desc: "Quality guaranteed" },
+              ].map(badge => (
+                <div key={badge.title} style={{
+                  background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)",
+                  borderRadius: 16, padding: "20px 24px", display: "flex", alignItems: "center", gap: 16,
+                  transition: "all 0.2s",
+                }}>
+                  <span style={{ fontSize: 32 }}>{badge.icon}</span>
+                  <div>
+                    <div style={{ color: "#fff", fontWeight: 700, fontSize: 14 }}>{badge.title}</div>
+                    <div style={{ color: "#64748b", fontSize: 12 }}>{badge.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
 
-  // Live viewer update on detail page
-  startDetailViewerUpdate();
-}
-let dvTimer=null;
-function startDetailViewerUpdate(){
-  if(dvTimer)clearInterval(dvTimer);
-  dvTimer=setInterval(()=>{
-    const el=document.getElementById('dLiveVw');
-    if(!el){clearInterval(dvTimer);return;}
-    const cur=parseInt(el.textContent||'30');
-    const next=Math.max(30,Math.min(100,cur+(Math.random()<.6?1:-1)*Math.floor(Math.random()*4+1)));
-    el.textContent=next;
-  },3500);
-}
-function swImg(i){cImg=i;const m=document.getElementById('dmi');if(m&&cProd&&cProd.images[i])m.innerHTML=`<div class="disc-big">${getDisc(cProd)}%<span class="offs">OFF</span></div><img src="${cProd.images[i]}" alt="${cProd.name}">`;document.querySelectorAll('.dthumb').forEach((t,idx)=>t.classList.toggle('on',idx===i));}
-function selPk(n){cPack=n;renderDetail();}
-function selSz(s){cSize=s;renderDetail();}
-function aQty(d){cQty=Math.max(1,cQty+d);const el=document.getElementById('qd');if(el)el.textContent=cQty;}
+        {/* TRENDING SLIDER */}
+        <div style={{ padding: "0 40px 60px", overflow: "hidden" }}>
+          <div style={{ maxWidth: 1400, margin: "0 auto" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 32 }}>
+              <div>
+                <h2 style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 28, fontWeight: 800, background: "linear-gradient(135deg, #fff, #94a3b8)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>🔥 TRENDING NOW</h2>
+                <p style={{ color: "#64748b", fontSize: 14, marginTop: 4 }}>Products flying off our shelves</p>
+              </div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <span style={{ background: "rgba(0,245,255,0.08)", border: "1px solid rgba(0,245,255,0.2)", borderRadius: 8, padding: "6px 12px", color: "#00f5ff", cursor: "pointer" }}>‹</span>
+                <span style={{ background: "rgba(0,245,255,0.08)", border: "1px solid rgba(0,245,255,0.2)", borderRadius: 8, padding: "6px 12px", color: "#00f5ff", cursor: "pointer" }}>›</span>
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 20, overflowX: "auto", paddingBottom: 8 }}>
+              {PRODUCTS.slice(0, 5).map(p => (
+                <div key={p.id} onClick={() => setSelectedProduct(p)} style={{
+                  minWidth: 180, background: "rgba(10,10,30,0.8)", border: "1px solid rgba(255,255,255,0.08)",
+                  borderRadius: 16, padding: "20px 16px", cursor: "pointer", textAlign: "center",
+                  transition: "all 0.2s", flexShrink: 0,
+                }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.border = "1px solid rgba(0,245,255,0.3)";
+                    e.currentTarget.style.transform = "scale(1.04)";
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.border = "1px solid rgba(255,255,255,0.08)";
+                    e.currentTarget.style.transform = "scale(1)";
+                  }}
+                >
+                  <span style={{ fontSize: 48, display: "block", marginBottom: 12 }}>{p.emoji}</span>
+                  <p style={{ color: "#fff", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{p.name}</p>
+                  <p style={{ color: "#00f5ff", fontSize: 14, fontWeight: 700 }}>Rs. {p.price.toLocaleString()}</p>
+                  <div style={{ display: "flex", justifyContent: "center", marginTop: 6 }}>
+                    <StarRating rating={p.rating} size={11} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
 
-// ═══ ORDER ═══
-function openOrder(pid,pack,price){
-  const p=prods.find(x=>x.id===pid);if(!p)return;
-  const total=price*cQty,si=cSize?` (${cSize})`:'';
-  document.getElementById('orderBody').innerHTML=`
-    ${pts2>0?`<div class="ptn">🎁 You have <strong style="color:var(--gold);">${pts2} NestPoints</strong> — Keep earning!</div>`:''}
-    <div class="osumbox">
-      <h4>Order Summary</h4>
-      <div class="srow"><span>${p.name}${si}</span></div>
-      <div class="srow"><span>Pack of ${pack} × ${cQty}</span><span>${fmt(total)}</span></div>
-      <div class="srow"><span>Delivery</span><span style="color:${total>=3000?'var(--emerald2)':'var(--gold);'}">${total>=3000?'FREE 🎉':'PKR 200'}</span></div>
-      <div class="srow tot"><span>Total (COD)</span><span style="color:var(--pink);">${fmt(total+(total>=3000?0:200))}</span></div>
-    </div>
-    <div class="fg"><label>Full Name *</label><input type="text" id="on" placeholder="Muhammad Ali"></div>
-    <div class="fg"><label>Phone Number *</label><input type="tel" id="oph" placeholder="03001234567"></div>
-    <div class="fg"><label>City *</label><select id="oci"><option value="">-- Select City --</option>${CITIES.map(c=>`<option>${c}</option>`).join('')}</select></div>
-    <div class="fg"><label>Full Address *</label><textarea id="oad" placeholder="House No., Street, Area..."></textarea></div>
-    <div class="fg"><label>Note (Optional)</label><input type="text" id="ont" placeholder="Special instructions..."></div>
-    <input type="hidden" id="opid" value="${pid}"><input type="hidden" id="opk" value="${pack}"><input type="hidden" id="opr" value="${price}"><input type="hidden" id="oqt" value="${cQty}"><input type="hidden" id="osz" value="${cSize}">
-    <button class="pbtn2" onclick="placeOrder()">✅ Confirm Order — ${fmt(total)} COD</button>`;
-  document.getElementById('orderOv').classList.add('open');
-}
-async function placeOrder(){
-  const name=document.getElementById('on').value.trim(),phone=document.getElementById('oph').value.trim(),city=document.getElementById('oci').value,addr=document.getElementById('oad').value.trim();
-  if(!name||!phone||!city||!addr){showToast('Please fill all required fields!','err');return;}
-  const pid=parseInt(document.getElementById('opid').value),pack=parseInt(document.getElementById('opk').value);
-  const price=parseInt(document.getElementById('opr').value),qty=parseInt(document.getElementById('oqt').value)||1,size=document.getElementById('osz').value;
-  const p=prods.find(x=>x.id===pid);
-  const earned=Math.floor(price*qty/100)*5;pts2+=earned;localStorage.setItem('nk7_pts',pts2);
-  const lel=document.getElementById('lpts');if(lel)lel.textContent=pts2;
-  const order={id:Date.now(),pid,pname:p?p.name:'',pack,price:price*qty,size,name,phone,city,addr,qty,note:document.getElementById('ont').value,date:new Date().toLocaleDateString('en-PK',{year:'numeric',month:'short',day:'numeric'}),status:'Pending',userId:null};
-  try{await window.fsAdd(window.fsCol(window.db,'orders'),order);}catch(e){}
-  const si=SALES5H.find(s=>s.cat.includes(p?p.cat:''));
-  if(si){si.sold+=qty;si.rev+=price*qty;}
-  SALES5H[SALES5H.length-1].sold+=qty;SALES5H[SALES5H.length-1].rev+=price*qty;
-  renderStatsBar();
-  document.getElementById('orderBody').innerHTML=`
-    <div class="succ">
-      <div class="sicon">🎉</div>
-      <div class="st2">Order Placed! Shukriya!</div>
-      <p class="ssub">Thank you <strong>${name}</strong>! Hamari team aapko <strong style="color:var(--pink);">${phone}</strong> pe call karegi to confirm karne ke liye.</p>
-      <div class="sdet">
-        <div class="sdr"><span>Product</span><span>${p?p.name:''}</span></div>
-        ${size?`<div class="sdr"><span>Size</span><span style="color:var(--pink);">${size}</span></div>`:''}
-        <div class="sdr"><span>Amount</span><span style="color:var(--pink);font-weight:800;">${fmt(price*qty)}</span></div>
-        <div class="sdr"><span>Payment</span><span style="color:var(--emerald2);">Cash on Delivery ✅</span></div>
-        <div class="sdr"><span>Delivery</span><span>3–6 Working Days 🚚</span></div>
+        {/* PRODUCTS GRID */}
+        <div id="products" style={{ padding: "0 40px 80px" }}>
+          <div style={{ maxWidth: 1400, margin: "0 auto" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 32 }}>
+              <div>
+                <h2 style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 28, fontWeight: 800, background: "linear-gradient(135deg, #00f5ff, #7c3aed)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>ALL PRODUCTS</h2>
+                <p style={{ color: "#64748b", fontSize: 14, marginTop: 4 }}>{filtered.length} products found</p>
+              </div>
+              <div style={{ color: "#64748b", fontSize: 13 }}>
+                <LiveCounter base={2344} label="shopping now" />
+              </div>
+            </div>
+
+            {filtered.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "80px 0" }}>
+                <span style={{ fontSize: 64, display: "block", marginBottom: 16 }}>🔍</span>
+                <p style={{ color: "#64748b", fontSize: 18 }}>No products found. Try a different search.</p>
+              </div>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 24 }}>
+                {filtered.map(p => <ProductCard key={p.id} product={p} onOpen={setSelectedProduct} />)}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* REVIEWS SECTION */}
+        <div style={{ padding: "60px 40px", background: "rgba(0,0,0,0.4)", borderTop: "1px solid rgba(255,255,255,0.04)", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+          <div style={{ maxWidth: 1400, margin: "0 auto" }}>
+            <div style={{ textAlign: "center", marginBottom: 48 }}>
+              <h2 style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 28, fontWeight: 800, color: "#fff", marginBottom: 8 }}>WHAT CUSTOMERS SAY</h2>
+              <p style={{ color: "#64748b" }}>Real reviews from verified Pakistani customers</p>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
+              {[
+                { name: "Kamil A.", city: "Lahore", text: "NestKart changed how I shop online. Premium quality, fast COD delivery. 1000% recommended!", rating: 5, product: "AeroBlend Pro X9", avatar: "KA" },
+                { name: "Saba N.", city: "Karachi", text: "Worth every single rupee. My family orders exclusively from NestKart now. Amazing products!", rating: 5, product: "LumiSkin Pro", avatar: "SN" },
+                { name: "Omer F.", city: "Islamabad", text: "Incredible experience! Ordered via COD, received in 3 days. The packaging was luxurious!", rating: 5, product: "NanoVac Ultra", avatar: "OF" },
+              ].map((r, i) => (
+                <div key={i} style={{
+                  background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)",
+                  borderRadius: 20, padding: 28, position: "relative",
+                }}>
+                  <div style={{ position: "absolute", top: 20, right: 24, fontSize: 48, color: "rgba(0,245,255,0.06)", fontFamily: "Georgia", lineHeight: 1 }}>"</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+                    <div style={{ width: 48, height: 48, borderRadius: "50%", background: "linear-gradient(135deg, #00f5ff, #7c3aed)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, color: "#fff" }}>{r.avatar}</div>
+                    <div>
+                      <div style={{ color: "#fff", fontWeight: 700 }}>{r.name}</div>
+                      <div style={{ color: "#64748b", fontSize: 12 }}>{r.city} • ✅ Verified Buyer</div>
+                    </div>
+                  </div>
+                  <StarRating rating={r.rating} size={16} />
+                  <p style={{ color: "#94a3b8", fontSize: 14, lineHeight: 1.8, marginTop: 12 }}>{r.text}</p>
+                  <div style={{ marginTop: 16, padding: "8px 12px", background: "rgba(0,245,255,0.05)", border: "1px solid rgba(0,245,255,0.1)", borderRadius: 8, color: "#64748b", fontSize: 12 }}>
+                    Bought: <span style={{ color: "#00f5ff" }}>{r.product}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* FOOTER */}
+        <footer style={{ padding: "60px 40px 40px", background: "rgba(0,0,0,0.6)" }}>
+          <div style={{ maxWidth: 1400, margin: "0 auto" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 48, marginBottom: 48 }}>
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+                  <span style={{ fontSize: 28 }}>🏠</span>
+                  <span style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 22, fontWeight: 900, background: "linear-gradient(135deg, #00f5ff, #7c3aed)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>NESTKART</span>
+                </div>
+                <p style={{ color: "#64748b", fontSize: 14, lineHeight: 1.8, marginBottom: 20, maxWidth: 300 }}>Pakistan's most premium ecommerce destination. Quality products, luxury experience, cash on delivery.</p>
+                <div style={{ display: "flex", gap: 12 }}>
+                  {["📘", "📷", "🐦", "▶️"].map((icon, i) => (
+                    <div key={i} style={{ width: 36, height: 36, borderRadius: 8, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>{icon}</div>
+                  ))}
+                </div>
+              </div>
+              {[
+                { title: "Shop", links: ["Kitchen", "Electronics", "Home", "Beauty", "Fitness"] },
+                { title: "Support", links: ["Track Order", "COD Policy", "Returns", "Contact Us", "FAQ"] },
+                { title: "Company", links: ["About NestKart", "Careers", "Blog", "Terms", "Privacy"] },
+              ].map(col => (
+                <div key={col.title}>
+                  <h4 style={{ color: "#fff", fontWeight: 700, marginBottom: 16, fontSize: 14, letterSpacing: 1 }}>{col.title.toUpperCase()}</h4>
+                  {col.links.map(l => <div key={l} style={{ color: "#64748b", fontSize: 13, marginBottom: 10, cursor: "pointer", transition: "color 0.2s" }}
+                    onMouseEnter={e => e.currentTarget.style.color = "#00f5ff"}
+                    onMouseLeave={e => e.currentTarget.style.color = "#64748b"}
+                  >{l}</div>)}
+                </div>
+              ))}
+            </div>
+            <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <p style={{ color: "#374151", fontSize: 13 }}>© 2025 NestKart. All rights reserved. Made with ⚡ in Pakistan.</p>
+              <div style={{ display: "flex", gap: 16 }}>
+                {["💵 COD", "🔒 SSL", "✅ Verified"].map(b => (
+                  <span key={b} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", color: "#64748b", fontSize: 12, padding: "4px 12px", borderRadius: 20 }}>{b}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </footer>
       </div>
-      ${earned>0?`<div class="ptn">🎁 Aapne <strong style="color:var(--gold);">${earned} NestPoints</strong> kamaye! Total: ${pts2} pts</div>`:''}
-      <button onclick="closeOrder();showStore()" class="pbtn2">🛍️ Continue Shopping</button>
-    </div>`;
-}
-function closeOrder(){document.getElementById('orderOv').classList.remove('open');}
 
-// ═══ CART ═══
-function addToCart(p,pack,price,size){
-  if(!p)return;
-  const k=`${p.id}_${pack}_${size}`;
-  const ex=cart.find(x=>x.key===k);
-  if(ex)ex.qty++;
-  else cart.push({key:k,id:p.id,pack,price,name:p.name,img:p.images&&p.images[0]?p.images[0]:'',cat:p.cat,size,qty:1});
-  localStorage.setItem('nk7_cart',JSON.stringify(cart));updCC();
-}
-function updCC(){
-  const n=cart.reduce((a,x)=>a+x.qty,0);
-  [document.getElementById('cn1'),document.getElementById('cn2')].forEach(el=>{if(el)el.textContent=n;});
-}
-function openCart(){document.getElementById('cov').classList.add('open');document.getElementById('cdr').classList.add('open');rCart();}
-function closeCart(){document.getElementById('cov').classList.remove('open');document.getElementById('cdr').classList.remove('open');}
-function rCart(){
-  const ci=document.getElementById('citems'),cf=document.getElementById('cft');
-  if(!cart.length){
-    ci.innerHTML=`<div class="emc"><div class="emci">🛒</div><p>Cart empty hai! Shopping karo!</p><button onclick="closeCart()" style="margin-top:14px;background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;border:none;padding:10px 24px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;">Browse Products</button></div>`;
-    cf.innerHTML='';return;
-  }
-  ci.innerHTML=cart.map(item=>`<div class="ci">
-    <div class="ciimg">${item.img?`<img src="${item.img}">`:(EM[item.cat]||'📦')}</div>
-    <div class="cinfo">
-      <div class="cin">${item.name} (x${item.pack})</div>
-      ${item.size?`<div class="cisz">${item.size}</div>`:''}
-      <div class="cip">${fmt(item.price)}</div>
-      <div class="ciqr">
-        <button class="ciqb" onclick="chgQty('${item.key}',-1)">−</button>
-        <span class="ciqn">${item.qty}</span>
-        <button class="ciqb" onclick="chgQty('${item.key}',1)">+</button>
-        <button class="cirm" onclick="rmCart('${item.key}')">Remove</button>
-      </div>
+      {/* Live popup */}
+      <LivePopup />
+
+      {/* Product Modal */}
+      {selectedProduct && (
+        <ProductModal
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+          onAddToCart={addToCart}
+        />
+      )}
+
+      {/* Cart Drawer */}
+      {cartOpen && (
+        <CartDrawer
+          cart={cart}
+          onClose={() => setCartOpen(false)}
+          onRemove={removeFromCart}
+        />
+      )}
     </div>
-  </div>`).join('');
-  const tot=cart.reduce((a,x)=>a+x.price*x.qty,0);
-  cf.innerHTML=`<div class="ctots">
-    <div class="cr"><span>Subtotal</span><span>${fmt(tot)}</span></div>
-    <div class="cr"><span>Delivery</span><span style="color:${tot>=3000?'var(--emerald2)':'var(--gold);'}">${tot>=3000?'FREE 🎉':'PKR 200'}</span></div>
-    <div class="cr grand"><span>Total (COD)</span><span style="color:var(--pink);">${fmt(tot+(tot>=3000?0:200))}</span></div>
-  </div>
-  <button class="ckbtn" onclick="cartCO()">✅ Checkout — Cash on Delivery</button>
-  <p style="text-align:center;font-size:10px;color:var(--dim);margin-top:8px;">🔒 Secure · ✅ COD · 🚚 Fast Delivery</p>`;
+  );
 }
-function chgQty(k,d){const i=cart.find(x=>x.key===k);if(!i)return;i.qty+=d;if(i.qty<=0)cart=cart.filter(x=>x.key!==k);localStorage.setItem('nk7_cart',JSON.stringify(cart));updCC();rCart();}
-function rmCart(k){cart=cart.filter(x=>x.key!==k);localStorage.setItem('nk7_cart',JSON.stringify(cart));updCC();rCart();}
-function cartCO(){if(!cart.length)return;closeCart();const f=cart[0];cProd=prods.find(x=>x.id===f.id);cSize=f.size||'';cQty=f.qty||1;openOrder(f.id,f.pack,f.price);}
-
-// ═══ TOAST ═══
-function showToast(msg,type=''){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.className='toast show '+(type||'');
-  setTimeout(()=>t.className='toast',3500);
-}
-
-// ═══ FLASH TIMER ═══
-(function(){
-  let h=8,m=34,s=17;
-  setInterval(()=>{
-    s--;if(s<0){s=59;m--;}if(m<0){m=59;h--;}if(h<0){h=23;m=59;s=59;}
-    const pad=n=>String(n).padStart(2,'0');
-    const fh=document.getElementById('fh'),fm=document.getElementById('fm'),fs=document.getElementById('fs');
-    if(fh)fh.textContent=pad(h);if(fm)fm.textContent=pad(m);if(fs)fs.textContent=pad(s);
-  },1000);
-})();
-
-// ═══ LIVE VISITOR COUNTER ═══
-(function(){
-  let v=2347;
-  const el=document.getElementById('liveV');
-  setInterval(()=>{
-    v+=Math.random()<.6?Math.floor(Math.random()*6)+1:-Math.floor(Math.random()*3);
-    v=Math.max(2000,Math.min(3500,v));
-    if(el)el.textContent=v.toLocaleString();
-  },3000);
-})();
-
-// ═══ TICKER ═══
-(function(){
-  const el=document.getElementById('tickIn');if(!el)return;
-  const d=[...TMSGS,...TMSGS];
-  el.innerHTML=d.map(m=>`<div class="tki"><span class="tdk"></span><span class="tkn">${m}</span></div>`).join('');
-})();
-
-// ═══ HOMEPAGE REVIEWS ═══
-(function(){
-  const el=document.getElementById('prow');if(!el)return;
-  el.innerHTML=REVIEWS_POOL.map(p=>`<div class="prcrd">
-    <div class="prhdr"><div class="prav" style="background:${avatarColor(p.n)}">${p.i}</div><div><div class="prn">${p.n}</div><div class="prc">📍 ${p.c}</div></div></div>
-    <div class="prst">${'★'.repeat(p.r)}</div>
-    <div class="prtxt">${p.t}</div>
-    <div class="pr-verified">✅ Verified Purchase</div>
-    <div class="prti">${p.ti}</div>
-  </div>`).join('');
-})();
-
-// ═══ LOYALTY POINTS ═══
-const lpel=document.getElementById('lpts');if(lpel)lpel.textContent=pts2;
-
-// ═══ POPUP ALERTS (fake purchase notifications) ═══
-(function(){
-  const pa=document.getElementById('popupAlert');
-  const paName=document.getElementById('paName');
-  const paMsg=document.getElementById('paMsg');
-  const paTime=document.getElementById('paTime');
-  const paIcon=document.getElementById('paIcon');
-  const emojis=['🛍️','🎁','✅','🔥','💜'];
-  const times=['just now','1 minute ago','2 minutes ago','3 minutes ago','5 minutes ago'];
-  let idx=0;
-  function showPopup(){
-    const name=POPUP_NAMES[Math.floor(Math.random()*POPUP_NAMES.length)];
-    const city=POPUP_CITIES[Math.floor(Math.random()*POPUP_CITIES.length)];
-    const msg=POPUP_MSGS[Math.floor(Math.random()*POPUP_MSGS.length)];
-    const em=emojis[Math.floor(Math.random()*emojis.length)];
-    const time=times[Math.floor(Math.random()*times.length)];
-    paIcon.textContent=em;
-    paName.textContent=name+' from '+city;
-    paMsg.textContent=msg;
-    paTime.textContent=time;
-    pa.classList.add('show');
-    setTimeout(()=>pa.classList.remove('show'),3500);
-    idx++;
-  }
-  setTimeout(showPopup,4000);
-  setInterval(showPopup,12000);
-})();
-
-// INIT
-buildCats();renderCatCards();renderGrid(prods);updCC();updWB();
-</script>
-</body>
-</html>
